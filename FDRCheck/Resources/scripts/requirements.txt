@@ -1,0 +1,8 @@
+pip install openpyxl
+pip install xlrd==1.2.0 #(actual slrd has not the same functions anymore)
+pip install matplotlib
+pip install os-win (not sure if necessary)
+pip install xlsxwriter
+pip install os-sys #(not actually necessary:occupies too much memory)
+
+pip install openpyxl matplotlib xlsxwriter xlrd==1.2.0

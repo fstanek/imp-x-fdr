@@ -9,23 +9,28 @@ from xlsxwriter import Workbook
 from xlsxwriter import workbook
 from xlsxwriter import worksheet
 import os
-
+import sys
+import venn
 
 output_filename = sys.argv[1]
-path = os.path.dirname(output_filename)
+path = os.path.abspath(output_filename)
+path = os.path.dirname(path)
 name_file_excel = os.path.basename(output_filename)
+
+
+
 
 input_filename_list = []
 title_list = []
 color_list = []
 
-for i in range(2,len(sys.arg)-3,3):
+
+for i in range(2,len(sys.argv)-2,3):
 	input_filename_list.append(sys.argv[i])
 	title_list.append(sys.argv[i+1])
 	color_list.append(sys.argv[i+2])
 
-print(input_filename_list)
-sys.exit()
+
 
 def parsing_the_files(string_name):
 
@@ -37,17 +42,16 @@ def parsing_the_files(string_name):
 	workbook = xlrd.open_workbook(string_name, on_demand = True)
 	worksheet = workbook.sheet_by_index(0)   
 	worksheet.cell_value(0,0)                           #initializing cell from the excel file mentioned through the cell position
-  
-	print("No. of rows:", worksheet.nrows)               #Counting & Printing thenumber of rows & columns respectively
-	print("No. of columns:", worksheet.ncols)
+
 	
 	
 	
 	i=0
+
 	while worksheet.cell(11+i,1).value!=xlrd.empty_cell.value:
 		crosslink_string = worksheet.cell(11+i,1).value
 		if(crosslink_string.find(", 'score_")!=-1):
-			crosslink_string = crosslink_string[0:crosslink_string.find(", 'score_")+1]+"]"
+			crosslink_string = crosslink_string[0:crosslink_string.find(", 'score_")]+"]"
 
 		list_all_true_XL.append(crosslink_string)
 		i=i+1
@@ -55,7 +59,11 @@ def parsing_the_files(string_name):
 
 	i=0
 	while worksheet.cell(11+i,2).value!=xlrd.empty_cell.value:
-		list_all_false_XL.append(worksheet.cell(11+i,2).value)
+		crosslink_string = worksheet.cell(11+i,2).value
+		if(crosslink_string.find(", 'score_")!=-1):
+			crosslink_string = crosslink_string[0:crosslink_string.find(", 'score_")]+"]"
+
+		list_all_false_XL.append(crosslink_string)
 		i=i+1
 	all_false_XL = i
 
@@ -76,7 +84,9 @@ def venn2_diagram(name1,name2):
 
 	venn2(subsets = (len(a1)-len(a1 & b1), len(b1)-len(a1 & b1), len(a1 & b1)), set_labels = (title_list[0], title_list[1]), set_colors=(color_list[0], color_list[1]), alpha = 0.7)
 
-	workbook1 = xlsxwriter.Workbook(output_filename)
+	pivot_list = []
+
+	workbook1 = xlsxwriter.Workbook(sys.argv[1])
 	worksheet1 = workbook1.add_worksheet('all crosslinks')
 	row = 0
 	col = 0
@@ -171,12 +181,14 @@ def venn2_diagram(name1,name2):
 
 	workbook1.close()
 
-	print('RESULT: '+ name_file_excel + ', '+'venn2_allcrosslinks.svg'+', ' +'venn2_truecrosslinks.svg' + ', ' + 'venn2_falsecrosslinks.svg')
+	print('RESULT: {'+ name_file_excel + ', '+'venn2_allcrosslinks.svg'+', ' +'venn2_truecrosslinks.svg' + ', ' + 'venn2_falsecrosslinks.svg}')
 
 
 	
 
 def venn3_diagram(name1,name2,name3):
+
+	pivot_list = []
 
 	a1, a2, a3 = parsing_the_files(name1)
 	b1, b2, b3 = parsing_the_files(name2)
@@ -247,7 +259,7 @@ def venn3_diagram(name1,name2,name3):
 					 len(c2 & a2)-len(a2 & b2 & c2),
 					 len(c2 & b2)-len(a2 & b2 & c2),
 					 len(a2 & b2 & c2)),
-					 set_labels = (title_list[0], title_list[1], title_list[2]), set_colors=(color_list[0], color_list[1], color_list[2]), alpha = 0.5);
+					 set_labels = (title_list[0], title_list[1], title_list[2]), set_colors=(color_list[0], color_list[1], color_list[2]), alpha = 0.5)
 
 	worksheet2 = workbook3.add_worksheet('true crosslinks')
 
@@ -302,7 +314,7 @@ def venn3_diagram(name1,name2,name3):
 					 len(c3 & a3)-len(a3 & b3 & c3),
 					 len(c3 & b3)-len(a3 & b3 & c3),
 					 len(a3 & b3 & c3)),
-					 set_labels = (title_list[0], title_list[1], title_list[2]), set_colors=(color_list[0], color_list[1], color_list[2]), alpha = 0.5);
+					 set_labels = (title_list[0], title_list[1], title_list[2]), set_colors=(color_list[0], color_list[1], color_list[2]), alpha = 0.5)
 
 	worksheet3 = workbook3.add_worksheet('false crosslinks')
 
@@ -381,6 +393,8 @@ def venn3_diagram(name1,name2,name3):
 
 def venn4_diagram(name1,name2,name3,name4):
 
+	pivot_list = []
+
 	a1, a2, a3 = parsing_the_files(name1)
 	b1, b2, b3 = parsing_the_files(name2)
 	c1, c2, c3 = parsing_the_files(name3)
@@ -388,20 +402,19 @@ def venn4_diagram(name1,name2,name3,name4):
 
 	workbook4 = xlsxwriter.Workbook(output_filename)
 
-	import venn
 
 	labels = venn.get_labels([a1,b1,c1,d1], fill=['number'])
-	fig, ax = venn.venn4(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
+	fig, ax = venn.venn(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
 	fig.savefig(path + "\\" + "venn4_allcrosslinks.svg")
 	fig.clf()
 
 	labels = venn.get_labels([a2,b2,c2,d2], fill=['number'])
-	fig, ax = venn.venn4(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
+	fig, ax = venn.venn(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
 	fig.savefig(path + "\\" + "venn4truecrosslinks.svg")
 	fig.clf()
 
 	labels = venn.get_labels([a3,b3,c3,d3], fill=['number'])
-	fig, ax = venn.venn4(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
+	fig, ax = venn.venn(labels, names=[title_list[0],title_list[1],title_list[2],title_list[3]])
 	fig.savefig(path + "\\" + "venn4falsecrosslinks.svg")
 	fig.clf()
 
@@ -507,36 +520,34 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet3.set_column(0,4,70)
 
 	workbook4.close()
+	result = ", ".join([name_file_excel, "venn4_allcrosslinks.svg", "venn4_truecrosslinks.svg", "venn4_falsecrosslinks.svg"])
+	print("RESULT: {result}")
 
-	print('RESULT: '+ name_file_excel + ', '+'venn4_allcrosslinks.svg'+', ' +'venn4_truecrosslinks.svg' + ', ' + 'venn4_falsecrosslinks.svg')
-
-import sys
 
 try:
 
 	a = (len(sys.argv)-2)/3
 
-
 	if a == 2:
 
-		address_of_the_first_file = sys.argv[1]
-		address_of_the_second_file = sys.argv[4]
+		address_of_the_first_file = sys.argv[2]
+		address_of_the_second_file = sys.argv[5]
 
 		venn2_diagram(address_of_the_first_file,address_of_the_second_file)
 
 	elif a== 3:
-		address_of_the_first_file = sys.argv[1]
-		address_of_the_second_file = sys.argv[4]
-		address_of_the_third_file = sys.argv[7]
+		address_of_the_first_file = sys.argv[2]
+		address_of_the_second_file = sys.argv[5]
+		address_of_the_third_file = sys.argv[8]
 
 		venn3_diagram(address_of_the_first_file,address_of_the_second_file,address_of_the_third_file)
 
 	elif a == 4:
 		
-		address_of_the_first_file = sys.argv[1]
-		address_of_the_second_file = sys.argv[4]
-		address_of_the_third_file = sys.argv[7]
-		address_of_the_fourth_file = sys.argv[10]
+		address_of_the_first_file = sys.argv[2]
+		address_of_the_second_file = sys.argv[5]
+		address_of_the_third_file = sys.argv[8]
+		address_of_the_fourth_file = sys.argv[11]
 
 		venn4_diagram(address_of_the_first_file,address_of_the_second_file,address_of_the_third_file,address_of_the_fourth_file)
 except Exception as e:

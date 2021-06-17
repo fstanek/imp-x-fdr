@@ -28,7 +28,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"></TextBox>
+                    <TextBox Text="{Binding OutputFileName}" Grid.Column="0"></TextBox>
                     <Button Click="BrowseOutput_Click" Style="{StaticResource BrowseButton}" Grid.Column="1">...</Button>
                 </Grid>
             </GroupBox>
@@ -40,9 +40,9 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Click="Run_Click">Create Venn Diagram</Button>
-                <Button Grid.Column="1" Click="Open_Click">Open output folder</Button>
-                <Button Grid.Column="2" Click="Clear_Click">Clear</Button>
+                <Button Grid.Column="0" IsEnabled="{Binding IsIdle}" Click="Run_Click">Create Venn Diagram</Button>
+                <Button Grid.Column="1" IsEnabled="{Binding IsIdle}" Click="Open_Click">Open output folder</Button>
+                <Button Grid.Column="2" IsEnabled="{Binding IsIdle}" Click="Clear_Click">Clear</Button>
             </Grid>
         </StackPanel>
     </Grid>

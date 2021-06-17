@@ -1,0 +1,91 @@
+﻿<DockPanel x:Class="FDRCheck.Controls.RecalculationPanel"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:models="clr-namespace:FDRCheck.Models"
+            mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="400">
+    <DockPanel.DataContext>
+        <models:JobConfiguration x:Name="jobConfiguration"/>
+    </DockPanel.DataContext>
+
+    <GroupBox Header="Search engine" Margin="5 0" DockPanel.Dock="Top">
+        <ComboBox SelectedIndex="0" DropDownClosed="ComboBox_DropDownClosed" ItemsSource="{Binding SearchEngines}" DisplayMemberPath="DisplayName" SelectedValue="{Binding SearchEngine}">
+        </ComboBox>
+    </GroupBox>
+
+    <GroupBox Header="Input" VerticalAlignment="Stretch" Margin="5 0" DockPanel.Dock="Top">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding InputFileName}" Grid.Column="0"/>
+            <Button Click="BrowseInput_Click" Style="{StaticResource BrowseButton}" Grid.Column="1"/>
+        </Grid>
+    </GroupBox>
+
+    <GroupBox Header="Library" VerticalAlignment="Stretch" Margin="5 0" DockPanel.Dock="Top">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding LibraryFileName}" VerticalContentAlignment="Center" Grid.Column="0"/>
+            <Button Click="BrowseLibrary_Click" Style="{StaticResource BrowseButton}" Grid.Column="1"/>
+        </Grid>
+    </GroupBox>
+
+    <GroupBox Header="Output" VerticalAlignment="Stretch" Margin="5 0" DockPanel.Dock="Top">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding OutputFileName}" Grid.Column="0"/>
+            <Button Click="BrowseOutput_Click" Style="{StaticResource BrowseButton}" Grid.Column="1"/>
+        </Grid>
+    </GroupBox>
+
+    <Grid Margin="5" DockPanel.Dock="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Click="Run_Click" Grid.Column="0">Run</Button>
+        <Button Click="Open_Click" Grid.Column="1">Open output folder</Button>
+        <Button Click="Clear_Click" Grid.Column="2">Clear</Button>
+    </Grid>
+
+    <GroupBox Header="Log" VerticalContentAlignment="Stretch" MinHeight="100" DockPanel.Dock="Top">
+        <ScrollViewer VerticalScrollBarVisibility="Visible" x:Name="logViewer">
+            <ItemsControl ItemsSource="{Binding LogMessages}" Foreground="Black">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0:HH:mm} {1}">
+                                        <Binding Path="DateTime" />
+                                        <Binding Path="Text" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsError}" Value="True">
+                                                <Setter Property="Foreground" Value="Red" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </GroupBox>
+</DockPanel>

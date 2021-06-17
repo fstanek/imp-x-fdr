@@ -1,4 +1,5 @@
 ﻿using FDRCheck.Constants;
+using FDRCheck.Utils;
 using Microsoft.Win32;
 using System.Linq;
 using System.Windows;
@@ -40,16 +41,29 @@ namespace FDRCheck.Controls
                 ShowError("There are duplicate file names specified.");
                 return;
             }
+
+            if(!FileHelper.IsValidPath(vennConfiguration.OutputFileName))
+            {
+                ShowError("Output file path is invalid.");
+                return;
+            }
+
+            vennConfiguration.IsIdle = false;
+
+            var pythonEngine = new PythonEngine();
+            pythonEngine.Run(vennConfiguration, validSegments);
+
+            vennConfiguration.IsIdle = true;
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-
+            FileHelper.TryOpenDirectory(vennConfiguration.OutputFileName);
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-
+            vennConfiguration.Clear();
         }
 
         private void ShowError(string text)

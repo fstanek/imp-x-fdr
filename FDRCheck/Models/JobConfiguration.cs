@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace FDRCheck.Models
 {
@@ -24,7 +25,16 @@ namespace FDRCheck.Models
         {
             get => outputFileName;
             set { outputFileName = value; OnPropertyChanged(nameof(OutputFileName)); }
-        } 
+        }
+
+        public ObservableCollection<LogMessage> LogMessages { get; } = new ObservableCollection<LogMessage>();
+
+        public JobConfiguration()
+        {
+            inputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.csv";
+            libraryFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.csv";
+            outputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.xlsx";
+        }
 
         public void Reset()
         {
@@ -45,6 +55,11 @@ namespace FDRCheck.Models
         // TODO read from json
         public SearchEngineCollection SearchEngines { get; set; } = new SearchEngineCollection
         {
+            new SearchEngine
+            {
+                DisplayName = "Test",
+                ScriptName = "Resources/scripts/test.py"
+            },
             new SearchEngine
             {
                 DisplayName = "MeroX",

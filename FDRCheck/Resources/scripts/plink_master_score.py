@@ -1,21 +1,45 @@
-import xlrd, xlsxwriter
-import sys, os, csv
-from openpyxl import Workbook
+import xlsxwriter
+import csv
 
-# open the sheetspreadfile and the respective sheet 
-workbook = xlrd.open_workbook('generate_xl_lys_test.xlsx', on_demand = True)
-worksheet = workbook.sheet_by_name('Sheet1')
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("input_file_name")
+parser.add_argument("support_file_name")
+parser.add_argument("output_file_name")
+parser.add_argument("-sintra", "--score_intralink",help="introduce the Intraprotein XL cut-off score for the selected FDR. It can be found in -Show Decoy analysis-",type=float, default=0)
+parser.add_argument("-sinter", "--score_interlink",help="introduce the Interprotein XL cut-off score for the selected FDR. It can be found in -Show Decoy analysis- ",type=float, default=0)
+
+args = parser.parse_args()
+# import the necessary library in order to work with xlsx sheets
+import xlrd
+
+# open the sheetspreadfile and the respective sheet
+groups_support_file = args.support_file_name
 
 
-#list_crosslinks_connect_acid = ["D","E"]
-#list_crosslinks_connect_lys = ["K","Y","T","S"]
+workbook_groups = xlrd.open_workbook(groups_support_file, on_demand = True)
+worksheet_groups = workbook_groups.sheet_by_index(0)
 
-input_filename = sys.argv[1]
-output_filename = sys.argv[2]
-#number_groups = int(input("Please type in the number of peptide groups: "))
-#peptides_per_group = int(input("Please type in the number of peptides per group: "))
-number_groups = sys.argv[3]
-peptides_per_group = sys.argv[4]
+number_groups = 0
+peptides_per_group = []
+# identify the number of groups
+for i in range(worksheet_groups.nrows):
+    if worksheet_groups.cell(i, 0).value.find("Group")!=-1:
+        number_groups = number_groups +1
+        peptides_per_group.append(i)
+
+# add the position where the first empty cell is found
+peptides_per_group.append(worksheet_groups.nrows)
+
+#subtract the positions of group headers in order to calculate the number of peptides per group
+for i in range(number_groups):
+    peptides_per_group[i] = peptides_per_group[i+1]-peptides_per_group[i]-1
+
+peptides_per_group = peptides_per_group[:-1]
+
+print(peptides_per_group)
+print(len(peptides_per_group))
 
 # in list_of_groups there will be all peptides groups with all their members stored 
 list_of_groups = []
@@ -27,18 +51,25 @@ list_of_peptides_per_group = []
 # list of peptides per group will be permanently emptied to make space for the other groups 
 # the number of list of peptides per group is static, not dynamic and should be kept constant
 for i in range(1,number_groups+1):
-    for j in range(1,peptides_per_group+1):
-        value = worksheet.cell(((i-1)*(peptides_per_group+1))+j, 0).value
-        list_of_peptides_per_group.append(value)
+    for j in range(1,peptides_per_group[i-1]+1):
+        list_of_peptides_per_group.append(worksheet_groups.cell(((i-1)*(peptides_per_group[i-1]+1))+j, 0).value)
     a = list_of_peptides_per_group
     list_of_groups.append(a)
     list_of_peptides_per_group = []
+
+name_file_plink= args.input_file_name
+
+import os
+name_of_the_image = os.path.splitext(name_file_plink)[0]
+
+from openpyxl import Workbook
+import csv
 
 
 counter=0
 wb = Workbook()
 ws = wb.active
-with open(input_filename, 'r') as f:
+with open(name_file_plink, 'r') as f:
     for row in csv.reader(f, delimiter='§'):
         ws.append(row)
         counter=counter+1
@@ -161,8 +192,6 @@ list_of_scores_plink.sort()
 print(len(unique_crosslinks))
 
 
-#fdr_cutoff_value = input("please type in the fdr cutoff value (ex:0.05): ")
-fdr_cutoff_value = 0.05
 temp1 = []
 temp2 = []
 
@@ -172,7 +201,7 @@ def fdr_diagamm(list_crosslinks):
 
     import xlsxwriter
 
-    workbook = xlsxwriter.Workbook(output_filename)
+    workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0] + '_venn_input.xlsx')
     worksheet = workbook.add_worksheet()
 
     # Start from the first cell. Rows and columns are zero indexed.
@@ -191,6 +220,9 @@ def fdr_diagamm(list_crosslinks):
     worksheet.write(9,1, "true crosslinks")
     worksheet.write(9,2, "false crosslinks")
 
+    worksheet.write(2,3,"number of XLs post-score cut-off 5%:")
+    worksheet.write(3,3,"numebr of XLs post-score cut-off 1%:")
+
 
     worksheet.set_column(0,0,30)
 
@@ -205,6 +237,20 @@ def fdr_diagamm(list_crosslinks):
     correct_no_homo_XL = []
     homo_XL = []
     false_XL = []
+
+    # open the file in the write mode
+    f = open(args.output_file_name, 'w', newline='')
+
+    #define the header
+    header_csv = ["Sequence A", "Sequence B","Accession A","Accession B","Position in protein A","Position in protein B","-lg(Score crosslink)","Within same group"]
+
+    # create the csv writer
+    writer = csv.writer(f)
+    writer.writerow(header_csv)
+
+    list_true_XL_csv = []
+    list_false_XL_csv = []
+
     
     import matplotlib.pyplot as plt
 
@@ -223,16 +269,20 @@ def fdr_diagamm(list_crosslinks):
                 k = 0
                 while(k<number_groups and found == False):
                     l = 0
-                    while(l<peptides_per_group and found == False):
+                    while(l<peptides_per_group[k] and found == False):
                         if unique_crosslinks[j][0] == list_of_groups[k][l] or unique_crosslinks[j][0] in list_of_groups[k][l] :
                             m = 0
-                            while(m<peptides_per_group and found== False):
+                            while(m<peptides_per_group[k] and found== False):
                                 if (unique_crosslinks[j][1]== list_of_groups[k][m] or unique_crosslinks[j][1] in list_of_groups[k][m]):
                                     found = True
                                     correct_crosslinks = correct_crosslinks +1
                                     temp2.append(list([unique_crosslinks[j][0],unique_crosslinks[j][1],
                                                        unique_crosslinks[j][3],unique_crosslinks[j][4],
                                                        str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),str("score_" + str(unique_crosslinks[j][2]))]))
+                                    if i==0:
+                                        list_true_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
+                                                          unique_crosslinks[j][3],unique_crosslinks[j][4],
+                                                          str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"TRUE"])
                                     if unique_crosslinks[j][0] == unique_crosslinks[j][1]:
                                         homeotypic = homeotypic+1
                                 else:
@@ -240,6 +290,10 @@ def fdr_diagamm(list_crosslinks):
                             
                         l = l+1
                     k = k+1
+                if i==0 and found == False:
+                    list_false_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
+                                                          unique_crosslinks[j][3],unique_crosslinks[j][4],
+                                                          str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"FALSE"])
         if i == 0:
             temp11 = []
             temp22 = []
@@ -262,8 +316,6 @@ def fdr_diagamm(list_crosslinks):
                 worksheet.write(11+m,2,str(temp3[m]))
             
 
-
-            workbook.close()
             list_of_the_correct_crosslinks = set(temp2)
             list_of_the_false_crosslinks = set(set(temp11)-set(temp22))
             list_of_all_crosslinks = set(temp1)
@@ -286,6 +338,17 @@ def fdr_diagamm(list_crosslinks):
     alarm_005 = False
     alarm_001 = False
 
+    try:
+        worksheet.write(2,1,"not calculated")
+        worksheet.write(3,1,correct_no_homo_XL[0]+homo_XL[0]+false_XL[0])
+        worksheet.write(4,1,correct_no_homo_XL[0]+homo_XL[0])
+        worksheet.write(5,1,homo_XL[0])
+        worksheet.write(6,1,correct_no_homo_XL[0])
+        worksheet.write(7,1,false_XL[0])
+    except:
+        print("ATTENZIONE")
+        print("ATTENZIONE")
+
     bar_graph = ["real FDR"+" " +str(float("{0:.1f}".format((false_XL[0]/(correct_no_homo_XL[0]+homo_XL[0]+false_XL[0]))*100)))+"%"]
     
     gold = [correct_no_homo_XL[0]]
@@ -301,12 +364,14 @@ def fdr_diagamm(list_crosslinks):
                 plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
                 plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
                 alarm_005 = True
+                worksheet.write(2,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                 bar_graph.append("FDR 5%")
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
                 if to_be_ploted_y[i]<=0.01:
                     alarm_001 = True
+                    worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                     bar_graph[1] = "FDR 1%"
                     #gold.append(correct_no_homo_XL[i])
                     #silver.append(homo_XL[i])
@@ -315,6 +380,7 @@ def fdr_diagamm(list_crosslinks):
                 plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
                 plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
                 alarm_001 = True
+                worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                 bar_graph.append("FDR 1%")
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
@@ -325,13 +391,14 @@ def fdr_diagamm(list_crosslinks):
                 plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
                 plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
                 alarm_001 = True
+                worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                 bar_graph.append("FDR 1%")
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
         
-    
-    plt.savefig(name_of_the_image+"plink_FDR.png")
+    workbook.close()
+    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_plink_ScorevsFDR.svg")
     plt.clf()
 
     import numpy as np
@@ -344,16 +411,20 @@ def fdr_diagamm(list_crosslinks):
     
     plt.xlabel("FDR")
     plt.ylabel("Number of crosslinks")
-    plt.title("Type of crosslinks with the FDRCUTOFF="+ fdr_cutoff_value)
+    plt.title("Type of crosslinks with post FDRCUTOFF score")
     plt.legend()
-    plt.savefig(name_of_the_image+"plink_FDR2.png")
+    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_plink_NumberXLs.svg")
 
     plt.clf()
     plt.xlabel("-log(Score)")
     plt.ylabel("Number of crosslinks")
     plt.stackplot(list_of_scores_plink,correct_no_homo_XL,homo_XL,false_XL,labels=["correct","correct homeotypic","false"], colors=["green","cyan","red"])
     plt.legend()
-    plt.savefig(name_of_the_image +"plink_FDR3.png")
+    plt.savefig(os.path.splitext(args.output_file_name)[0] +"_plink_ScorevsNumberXLs.svg")
+
+    writer.writerows(list_true_XL_csv)
+    writer.writerows(list_false_XL_csv)
+    f.close()
 
 fdr_diagamm(unique_crosslinks)
 

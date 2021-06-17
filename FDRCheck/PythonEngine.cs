@@ -2,70 +2,49 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FDRCheck
 {
     public class PythonEngine
     {
         private const string PythonPath = "Resources/python/python.exe";
-        private const string ResultPrefix = "RESULT: ";
 
-        public event Action<string> InfoReceived;
-        public event Action<string> ErrorReceived;
+        public event Func<string, bool, Task> MessageReceived;
 
-        public string Run(string scriptFileName, string workingDirectory, IEnumerable<string> arguments)
+        public void Run(string scriptFileName, IEnumerable<string> arguments)
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = PythonPath,
-                WorkingDirectory = workingDirectory,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            };
-
-            startInfo.ArgumentList.Add(scriptFileName);
+            using var process = new Process();
+            process.StartInfo.FileName = PythonPath;
+            process.StartInfo.ArgumentList.Add(scriptFileName);
 
             foreach (var argument in arguments)
-                startInfo.ArgumentList.Add(argument.ToString());
+                process.StartInfo.ArgumentList.Add(argument.ToString());
 
-            using var process = Process.Start(startInfo);
-            var resultText = "";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.OutputDataReceived += (s, e) => OnMessageReceived(e, false);
 
-            process.OutputDataReceived += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(e.Data))
-                    return;
+            process.StartInfo.RedirectStandardError = true;
+            process.ErrorDataReceived += (s, e) => OnMessageReceived(e, true);
 
-                if (e.Data.StartsWith(ResultPrefix))
-                {
-                    resultText = e.Data.Substring(0, ResultPrefix.Length);
-                }
-                else
-                {
-                    InfoReceived?.Invoke(e.Data);
-                }
-            };
-
-            process.ErrorDataReceived += (s, e) =>
-            {
-                if (string.IsNullOrWhiteSpace(e.Data))
-                    return;
-
-                ErrorReceived?.Invoke(e.Data);
-            };
-
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             process.WaitForExit();
-            return resultText;
         }
 
-        public void Run(JobConfiguration jobConfiguration)
+        private void OnMessageReceived(DataReceivedEventArgs dataReceivedEventArgs, bool isError)
         {
-            Run(jobConfiguration.SearchEngine.ScriptName,
-                Path.GetDirectoryName(jobConfiguration.OutputFileName),
-                jobConfiguration.GetArguments());
+            if (dataReceivedEventArgs.Data != null)
+                MessageReceived?.Invoke(dataReceivedEventArgs.Data, isError);
+        }
+
+        public void Run(VennConfiguration vennConfiguration, IEnumerable<VennSegment> vennSegments)
+        {
+            var arguments = vennSegments.SelectMany(s => new[] { s.FileName, s.Title, s.Color.Value.ToString() }).ToArray();
+
+            Run("Resources/scripts/venny.py", arguments);
         }
     }
 }

@@ -2,27 +2,46 @@
 
 namespace FDRCheck.Models
 {
-    public class VennConfiguration
+    public class VennConfiguration : BaseModel
     {
-        public string OutputFileName { get; set; }
-        public VennSegment[] VennSegments { get; }
+        private VennSegment[] vennSegments;
+        private string outputFileName;
+        private bool isIdle = true;
+
+        public VennSegment[] VennSegments
+        {
+            get => vennSegments;
+            set { vennSegments = value; OnPropertyChanged(nameof(VennSegments)); }
+        }
+
+        public string OutputFileName
+        {
+            get => outputFileName;
+            set { outputFileName = value; OnPropertyChanged(nameof(OutputFileName)); }
+        }
+
+        public bool IsIdle
+        {
+            get => isIdle;
+            set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
+        }
 
         public VennConfiguration()
         {
-            /*
-             * <controls:VennyInputPanel DataContext="{Binding VennSegments[0]}" VennColor="#B5F8FE"></controls:VennyInputPanel>
-             * <controls:VennyInputPanel DataContext="{Binding VennSegments[1]}" VennColor="#FDB87F"></controls:VennyInputPanel>
-             * <controls:VennyInputPanel DataContext="{Binding VennSegments[2]}" VennColor="#10FFCB"></controls:VennyInputPanel>
-             * <controls:VennyInputPanel DataContext="{Binding VennSegments[3]}" VennColor="#F75590"></controls:VennyInputPanel>
-             */
+            Clear();
+        }
 
+        public void Clear()
+        {
             VennSegments = new[]
             {
-                new VennSegment { Color = Color.FromRgb(181, 248, 254) },
-                new VennSegment { Color = Color.FromRgb(253, 184, 127) },
+                new VennSegment { Color = Color.FromRgb(181, 248, 254), FileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep1_plink_data.xlsx" },
+                new VennSegment { Color = Color.FromRgb(253, 184, 127), FileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink_data.xlsx" },
                 new VennSegment { Color = Color.FromRgb(16, 255, 203) },
                 new VennSegment { Color = Color.FromRgb(247, 85, 144) }
             };
+
+            OutputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\output\output.xlsx";
         }
     }
 }

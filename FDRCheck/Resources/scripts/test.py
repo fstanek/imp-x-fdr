@@ -1,22 +1,25 @@
 ﻿import sys
+from time import sleep
 
-# read first argument as input filename 
-input_filename = sys.argv[1]
+def log_info(text):
+    print(text)
+    sys.stdout.flush()
 
-# read second argument as output filename
-output_filename = sys.argv[2]
+def log_error(text):
+    print(text, file=sys.stderr)
+    sys.stderr.flush()
 
-# do processing here ...
+try:
+    input_filename = sys.argv[1]
+    library_filename = sys.argv[2]
+    output_filename = sys.argv[3]
+
+    log_info('This is a message.')
+    sleep(3)
+
+    log_error('This is an error.')
 
 
-#print(r'C:\Users\stanek\Documents\test files\test-data_Adrian\xlinkx\DSBSO_p2_r3_xlinkxXlinkX_FDR.png')
-#print(r'C:\Users\stanek\Documents\test files\test-data_Adrian\xlinkx\DSBSO_p2_r3_xlinkxXlinkX_FDR2.png')
-#print(r'C:\Users\stanek\Documents\test files\test-data_Adrian\xlinkx\DSBSO_p2_r3_xlinkxXlinkX_FDR3.png')
-
-
-import sys
-
-sys.argv
-
-for i in range(1, len(sys.argv)):
-    pass
+except Exception as e:
+    log_error(e)
+    sys.exit(1)
