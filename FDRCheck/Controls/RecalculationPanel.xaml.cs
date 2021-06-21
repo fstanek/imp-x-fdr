@@ -15,7 +15,7 @@ namespace FDRCheck.Controls
     /// </summary>
     public partial class RecalculationPanel : DockPanel
     {
-        private readonly PythonEngine pythonEngine;
+        private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly OpenFileDialog inputFileDialog = new OpenFileDialog();
         private readonly OpenFileDialog libraryFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
         private readonly SaveFileDialog outputFileDialog = new SaveFileDialog { Filter = FileFilters.Excel };
@@ -24,8 +24,7 @@ namespace FDRCheck.Controls
         {
             InitializeComponent();
 
-            pythonEngine = new PythonEngine();
-            pythonEngine.MessageReceived += PythonEngine_Received;
+            pythonEngine.MessageReceived += logPanel.AddMessage;
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
@@ -68,7 +67,9 @@ namespace FDRCheck.Controls
 
             Task.Run(() =>
             {
+                jobConfiguration.IsIdle = false;
                 pythonEngine.Run(jobConfiguration.SearchEngine.ScriptName, jobConfiguration.GetArguments());
+                jobConfiguration.IsIdle = true;
             });
         }
 
@@ -90,21 +91,6 @@ namespace FDRCheck.Controls
         private void ComboBox_DropDownClosed(object sender, EventArgs e)
         {
             // TODO set search engine parameters
-        }
-
-        private async Task PythonEngine_Received(string text, bool isError)
-        {
-            await Dispatcher.InvokeAsync(() =>
-            {
-                var logMessage = new LogMessage
-                {
-                    DateTime = DateTime.Now,
-                    Text = text,
-                    IsError = isError
-                };
-                jobConfiguration.LogMessages.Add(logMessage);
-                logViewer.ScrollToEnd();
-            });
         }
     }
 }

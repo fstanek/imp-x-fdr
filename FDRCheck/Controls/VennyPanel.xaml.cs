@@ -2,6 +2,7 @@
 using FDRCheck.Utils;
 using Microsoft.Win32;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,16 +13,19 @@ namespace FDRCheck.Controls
     /// </summary>
     public partial class VennyPanel : UserControl
     {
+        private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = FileFilters.Excel };
 
         public VennyPanel()
         {
             InitializeComponent();
+
+            pythonEngine.MessageReceived += logPanel.AddMessage;
         }
 
         private void BrowseOutput_Click(object sender, RoutedEventArgs e)
         {
-            if(saveFileDialog.ShowDialog(Window.GetWindow(this)) == true)
+            if (saveFileDialog.ShowDialog(Window.GetWindow(this)) == true)
                 vennConfiguration.OutputFileName = saveFileDialog.FileName;
         }
 
@@ -36,24 +40,27 @@ namespace FDRCheck.Controls
             }
 
             var distinctFileNames = validSegments.Select(s => s.FileName).Distinct().ToArray();
-            if(distinctFileNames.Length < validSegments.Length)
+            if (distinctFileNames.Length < validSegments.Length)
             {
                 ShowError("There are duplicate file names specified.");
                 return;
             }
 
-            if(!FileHelper.IsValidPath(vennConfiguration.OutputFileName))
+            if (!FileHelper.IsValidPath(vennConfiguration.OutputFileName))
             {
                 ShowError("Output file path is invalid.");
                 return;
             }
 
-            vennConfiguration.IsIdle = false;
+            var arguments = validSegments.SelectMany(s => new[] { s.FileName, s.Title, s.Color.Value.ToString() })
+                .Prepend(vennConfiguration.OutputFileName).ToArray();
 
-            var pythonEngine = new PythonEngine();
-            pythonEngine.Run(vennConfiguration, validSegments);
-
-            vennConfiguration.IsIdle = true;
+            Task.Run(() =>
+            {
+                vennConfiguration.IsIdle = false;
+                pythonEngine.Run("Resources/venny.py", arguments);
+                vennConfiguration.IsIdle = true;
+            });
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)

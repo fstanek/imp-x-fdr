@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using FDRCheck.Utils;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 
 namespace FDRCheck.Models
 {
@@ -8,6 +12,7 @@ namespace FDRCheck.Models
         private string inputFileName;
         private string libraryFileName;
         private string outputFileName;
+        private bool isIdle = true;
 
         public string InputFileName
         {
@@ -27,13 +32,19 @@ namespace FDRCheck.Models
             set { outputFileName = value; OnPropertyChanged(nameof(OutputFileName)); }
         }
 
-        public ObservableCollection<LogMessage> LogMessages { get; } = new ObservableCollection<LogMessage>();
+        public bool IsIdle
+        {
+            get => isIdle;
+            set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
+        }
 
         public JobConfiguration()
         {
-            inputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.csv";
-            libraryFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.csv";
-            outputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink.xlsx";
+            inputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\input files\DSSO_plink_rep1.csv";
+            libraryFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\support file\support.xlsx";
+            outputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\output\plink.xlsx";
+
+            SearchEngines = new SearchEngineCollection(ScriptHelper.GetSearchEngines());
         }
 
         public void Reset()
@@ -51,35 +62,6 @@ namespace FDRCheck.Models
         }
 
         public SearchEngine SearchEngine { get; set; }
-
-        // TODO read from json
-        public SearchEngineCollection SearchEngines { get; set; } = new SearchEngineCollection
-        {
-            new SearchEngine
-            {
-                DisplayName = "Test",
-                ScriptName = "Resources/scripts/test.py"
-            },
-            new SearchEngine
-            {
-                DisplayName = "MeroX",
-                ScriptName = "Resources/scripts/merox_master.py"
-            },
-            new SearchEngine
-            {
-                DisplayName = "MS Annika",
-                ScriptName = "Resources/scripts/annika_master_score.py"
-            },
-            new SearchEngine
-            {
-                DisplayName = "PLINK",
-                ScriptName = "Resources/scripts/plink_master_score.py"
-            },
-            new SearchEngine
-            {
-                DisplayName = "XlinkX",
-                ScriptName = "Resources/scripts/xlinkx_master_score.py"
-            },
-        };
+        public SearchEngineCollection SearchEngines { get; set; }
     }
 }

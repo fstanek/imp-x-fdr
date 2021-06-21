@@ -6,17 +6,18 @@
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon />
 		<StartupObject />
-		<DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+		<!--<DisableWinExeOutputInference>true</DisableWinExeOutputInference>-->
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Resources\*\*">
+		<None Update="Resources\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

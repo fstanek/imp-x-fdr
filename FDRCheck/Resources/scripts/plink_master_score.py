@@ -1,7 +1,12 @@
+#PLINK
 import xlsxwriter
 import csv
-
 import argparse
+from openpyxl import Workbook
+import os
+import itertools
+import xlrd
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file_name")
@@ -11,12 +16,9 @@ parser.add_argument("-sintra", "--score_intralink",help="introduce the Intraprot
 parser.add_argument("-sinter", "--score_interlink",help="introduce the Interprotein XL cut-off score for the selected FDR. It can be found in -Show Decoy analysis- ",type=float, default=0)
 
 args = parser.parse_args()
-# import the necessary library in order to work with xlsx sheets
-import xlrd
 
 # open the sheetspreadfile and the respective sheet
 groups_support_file = args.support_file_name
-
 
 workbook_groups = xlrd.open_workbook(groups_support_file, on_demand = True)
 worksheet_groups = workbook_groups.sheet_by_index(0)
@@ -38,8 +40,8 @@ for i in range(number_groups):
 
 peptides_per_group = peptides_per_group[:-1]
 
-print(peptides_per_group)
-print(len(peptides_per_group))
+#print(peptides_per_group)
+#print(len(peptides_per_group))
 
 # in list_of_groups there will be all peptides groups with all their members stored 
 list_of_groups = []
@@ -58,13 +60,7 @@ for i in range(1,number_groups+1):
     list_of_peptides_per_group = []
 
 name_file_plink= args.input_file_name
-
-import os
 name_of_the_image = os.path.splitext(name_file_plink)[0]
-
-from openpyxl import Workbook
-import csv
-
 
 counter=0
 wb = Workbook()
@@ -73,7 +69,6 @@ with open(name_file_plink, 'r') as f:
     for row in csv.reader(f, delimiter='§'):
         ws.append(row)
         counter=counter+1
-
 
 wb.save('plink_bin.xlsx')
 
@@ -160,7 +155,6 @@ csm_crosslinks = order_alphabetically(csm_crosslinks)
 list_of_scores_plink = list(set(list_of_scores_plink))
 list_of_scores_plink.sort()
 
-import itertools
 csm_crosslinks.sort()
 csm_crosslinks = list(csm_crosslinks for csm_crosslinks,_ in itertools.groupby(csm_crosslinks))
 
@@ -400,8 +394,6 @@ def fdr_diagamm(list_crosslinks):
     workbook.close()
     plt.savefig(os.path.splitext(args.output_file_name)[0]+"_plink_ScorevsFDR.svg")
     plt.clf()
-
-    import numpy as np
     
     b_bronze = list (np.add(gold, silver))
 

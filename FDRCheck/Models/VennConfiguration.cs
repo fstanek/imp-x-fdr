@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Media;
 
 namespace FDRCheck.Models
 {
@@ -35,13 +36,13 @@ namespace FDRCheck.Models
         {
             VennSegments = new[]
             {
-                new VennSegment { Color = Color.FromRgb(181, 248, 254), FileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep1_plink_data.xlsx" },
-                new VennSegment { Color = Color.FromRgb(253, 184, 127), FileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\DSSO_peplib2_rep2_plink_data.xlsx" },
+                new VennSegment { Color = Color.FromRgb(181, 248, 254) },
+                new VennSegment { Color = Color.FromRgb(253, 184, 127) },
                 new VennSegment { Color = Color.FromRgb(16, 255, 203) },
                 new VennSegment { Color = Color.FromRgb(247, 85, 144) }
             };
 
-            OutputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\plink\output\output.xlsx";
+            OutputFileName = null;
         }
     }
 }

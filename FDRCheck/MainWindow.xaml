@@ -3,13 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:FDRCheck.Models"
         xmlns:controls="clr-namespace:FDRCheck.Controls"
         mc:Ignorable="d"
-        Title="FDR Check" Height="Auto" Width="600" SizeToContent="Height">
-    <Window.DataContext>
-        <models:JobConfiguration x:Name="jobConfiguration"/>
-    </Window.DataContext>
+        Title="IMP XFDR" Height="Auto" Width="600" SizeToContent="Height">
 
     <TabControl SelectedIndex="0">
         <TabItem Header="FDR recalculation">
