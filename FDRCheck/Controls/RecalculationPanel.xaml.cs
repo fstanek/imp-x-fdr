@@ -1,5 +1,4 @@
 ﻿using FDRCheck.Constants;
-using FDRCheck.Models;
 using FDRCheck.Utils;
 using Microsoft.Win32;
 using System;
@@ -16,9 +15,9 @@ namespace FDRCheck.Controls
     public partial class RecalculationPanel : DockPanel
     {
         private readonly PythonEngine pythonEngine = new PythonEngine();
-        private readonly OpenFileDialog inputFileDialog = new OpenFileDialog();
+        private readonly OpenFileDialog inputFileDialog = new OpenFileDialog { Filter = FileFilters.All };
         private readonly OpenFileDialog libraryFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
-        private readonly SaveFileDialog outputFileDialog = new SaveFileDialog { Filter = FileFilters.Excel };
+        private readonly SaveFileDialog outputFileDialog = new SaveFileDialog { Filter = FileFilters.Csv };
 
         public RecalculationPanel()
         {
