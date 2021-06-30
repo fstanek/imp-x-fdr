@@ -1,9 +1,6 @@
 ﻿using FDRCheck.Utils;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 
 namespace FDRCheck.Models
 {
@@ -40,10 +37,7 @@ namespace FDRCheck.Models
 
         public JobConfiguration()
         {
-            inputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\input files\DSSO_plink_rep1.csv";
-            libraryFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\support file\support.xlsx";
-            outputFileName = @"C:\Users\stanek\Documents\test files\test-data_Adrian\output\plink.xlsx";
-
+            LibraryFileName = Path.GetFullPath("Resources/libraries/support.xlsx");
             SearchEngines = new SearchEngineCollection(ScriptHelper.GetSearchEngines());
         }
 
