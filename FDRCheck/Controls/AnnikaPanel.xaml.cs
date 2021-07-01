@@ -5,63 +5,62 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using DialogResult = System.Windows.Forms.DialogResult;
+using FolderBrowserDialog = System.Windows.Forms.FolderBrowserDialog;
 
 namespace FDRCheck.Controls
 {
     /// <summary>
-    /// Interaction logic for RecalculationPanel.xaml
+    /// Interaction logic for AnnikaPanel.xaml
     /// </summary>
-    public partial class RecalculationPanel : DockPanel
+    public partial class AnnikaPanel : DockPanel
     {
         private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly OpenFileDialog inputFileDialog = new OpenFileDialog { Filter = FileFilters.All };
         private readonly OpenFileDialog libraryFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
-        private readonly SaveFileDialog outputFileDialog = new SaveFileDialog { Filter = FileFilters.Csv };
+        private readonly FolderBrowserDialog outputFolderDialog = new FolderBrowserDialog();
 
-        public RecalculationPanel()
+        public AnnikaPanel()
         {
             InitializeComponent();
 
             pythonEngine.MessageReceived += logPanel.AddMessage;
-            jobConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support.xlsx");
-
-            foreach (var searchEngine in ScriptHelper.GetSearchEngines("Resources/search-engines/"))
-                jobConfiguration.SearchEngines.Add(searchEngine);
+            annikaConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support.xlsx");
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
         {
             if (inputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
-                jobConfiguration.InputFileName = inputFileDialog.FileName;
+                annikaConfiguration.InputFileName = inputFileDialog.FileName;
         }
 
         private void BrowseLibrary_Click(object sender, RoutedEventArgs e)
         {
             if (libraryFileDialog.ShowDialog(Window.GetWindow(this)) == true)
-                jobConfiguration.LibraryFileName = libraryFileDialog.FileName;
+                annikaConfiguration.LibraryFileName = libraryFileDialog.FileName;
         }
 
         private void BrowseOutput_Click(object sender, RoutedEventArgs e)
         {
-            if (outputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
-                jobConfiguration.OutputFileName = outputFileDialog.FileName;
+            if (outputFolderDialog.ShowDialog(WindowHelper.GetWin32Window(this)) == DialogResult.OK)
+                annikaConfiguration.OutputFolderName = outputFolderDialog.SelectedPath;
         }
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists(jobConfiguration.InputFileName))
+            if (!File.Exists(annikaConfiguration.InputFileName))
             {
                 WindowHelper.ShowError(this, "Input file does not exist.");
                 return;
             }
 
-            if (!File.Exists(jobConfiguration.LibraryFileName))
+            if (!File.Exists(annikaConfiguration.LibraryFileName))
             {
                 WindowHelper.ShowError(this, "Library file does not exist.");
                 return;
             }
 
-            if (!FileHelper.IsValidFileName(jobConfiguration.OutputFileName))
+            if (!FileHelper.IsValidFileName(annikaConfiguration.OutputFolderName))
             {
                 WindowHelper.ShowError(this, "Invalid output file path.");
                 return;
@@ -69,20 +68,20 @@ namespace FDRCheck.Controls
 
             Task.Run(() =>
             {
-                jobConfiguration.IsIdle = false;
-                pythonEngine.Run(jobConfiguration.SearchEngine.ScriptName, jobConfiguration.GetArguments());
-                jobConfiguration.IsIdle = true;
+                annikaConfiguration.IsIdle = false;
+                pythonEngine.Run(annikaConfiguration.ScriptName, annikaConfiguration.GetArguments());
+                annikaConfiguration.IsIdle = true;
             });
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            FileHelper.TryOpenDirectory(jobConfiguration.OutputFileName);
+            FileHelper.TryOpenDirectory(annikaConfiguration.OutputFolderName);
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-            jobConfiguration.Clear();
+            annikaConfiguration.Clear();
         }
     }
 }

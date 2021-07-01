@@ -31,7 +31,7 @@
         </Grid>
     </GroupBox>
 
-    <Grid Margin="2 5" DockPanel.Dock="Top">
+    <Grid Margin="2" DockPanel.Dock="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />

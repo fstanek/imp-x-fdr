@@ -1,0 +1,7 @@
+﻿biopython
+matplotlib_venn
+openpyxl
+toolz
+venn
+xlrd
+xlsxwriter

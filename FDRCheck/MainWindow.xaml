@@ -11,6 +11,9 @@
         <TabItem Header="FDR recalculation">
             <controls:RecalculationPanel></controls:RecalculationPanel>
         </TabItem>
+        <TabItem Header="MS Annika: Chemical Investigations">
+            <controls:AnnikaPanel></controls:AnnikaPanel>
+        </TabItem>
         <TabItem Header="Venn diagrams">
             <controls:VennyPanel></controls:VennyPanel>
         </TabItem>

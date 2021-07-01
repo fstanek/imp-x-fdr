@@ -1,9 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace FDRCheck.Models
 {
-    public class VennConfiguration : BaseModel
+    public class VennConfiguration : ConfigurationBase
     {
         private VennSegment[] vennSegments;
         private string outputFileName;
@@ -27,15 +27,22 @@ namespace FDRCheck.Models
             set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
         }
 
+        public override string ScriptName => throw new System.NotImplementedException();
+
         public VennConfiguration()
         {
             Clear();
         }
 
-        public void Clear()
+        public override IEnumerable<string> GetArguments()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Clear()
         {
             VennSegments = new[]
-            {
+             {
                 new VennSegment { Color = Color.FromRgb(181, 248, 254) },
                 new VennSegment { Color = Color.FromRgb(253, 184, 127) },
                 new VennSegment { Color = Color.FromRgb(16, 255, 203) },

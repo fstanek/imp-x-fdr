@@ -5,11 +5,24 @@ namespace FDRCheck.Utils
 {
     public static class FileHelper
     {
-        public static bool IsValidPath(string fileName)
+        public static bool IsValidFileName(string fileName)
         {
             try
             {
                 new FileInfo(fileName);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool IsValidDirectory(string directoryName)
+        {
+            try
+            {
+                new DirectoryInfo(directoryName);
                 return true;
             }
             catch

@@ -2,7 +2,7 @@
 
 namespace FDRCheck.Models
 {
-    public class BaseModel : INotifyPropertyChanged
+    public abstract class BaseModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

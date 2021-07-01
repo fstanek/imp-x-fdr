@@ -46,7 +46,7 @@ namespace FDRCheck.Controls
                 return;
             }
 
-            if (!FileHelper.IsValidPath(vennConfiguration.OutputFileName))
+            if (!FileHelper.IsValidFileName(vennConfiguration.OutputFileName))
             {
                 ShowError("Output file path is invalid.");
                 return;

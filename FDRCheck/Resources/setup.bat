@@ -1,6 +1,6 @@
 @echo off
 
-"python\python.exe" -m pip uninstall numpy scipy matplotlib_venn venn -y
-"python\python.exe" -m pip install numpy scipy matplotlib_venn venn
+"python\python.exe" -m pip uninstall numpy scipy -y
+"python\python.exe" -m pip install -r requirements.txt
 
 pause

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace FDRCheck.Models
 {
-    public class JobConfiguration : ConfigurationBase
+    public class AnnikaConfiguration : ConfigurationBase
     {
         private string inputFileName;
         private string libraryFileName;
-        private string outputFileName;
+        private string outputFolderName;
         private bool isIdle = true;
 
         public string InputFileName
@@ -22,10 +21,10 @@ namespace FDRCheck.Models
             set { libraryFileName = value; OnPropertyChanged(nameof(LibraryFileName)); }
         }
 
-        public string OutputFileName
+        public string OutputFolderName
         {
-            get => outputFileName;
-            set { outputFileName = value; OnPropertyChanged(nameof(OutputFileName)); }
+            get => outputFolderName;
+            set { outputFolderName = value; OnPropertyChanged(nameof(OutputFolderName)); }
         }
 
         public bool IsIdle
@@ -34,23 +33,20 @@ namespace FDRCheck.Models
             set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
         }
 
-        public SearchEngine SearchEngine { get; set; }
-        public ObservableCollection<SearchEngine> SearchEngines { get; } = new ObservableCollection<SearchEngine>();
-
-        public override string ScriptName => SearchEngine.ScriptName;
+        public override string ScriptName => "Resources/annika_master_score.py";
 
         public override IEnumerable<string> GetArguments()
         {
             yield return InputFileName;
             yield return LibraryFileName;
-            yield return OutputFileName;
+            yield return OutputFolderName;
         }
 
         public override void Clear()
         {
             InputFileName = null;
             LibraryFileName = null;
-            OutputFileName = null;
+            OutputFolderName = null;
         }
     }
 }

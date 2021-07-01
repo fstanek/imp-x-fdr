@@ -7,12 +7,11 @@ namespace FDRCheck.Utils
 {
     public static class ScriptHelper
     {
-        private const string ScriptPath = "Resources/scripts/";
         private const char CommentPrefix = '#';
 
-        public static IEnumerable<SearchEngine> GetSearchEngines()
+        public static IEnumerable<SearchEngine> GetSearchEngines(string path)
         {
-            foreach (var fileName in Directory.EnumerateFiles(ScriptPath))
+            foreach (var fileName in Directory.EnumerateFiles(path))
             {
                 var displayName = Path.GetFileNameWithoutExtension(fileName);
                 var header = File.ReadLines(fileName).FirstOrDefault();
