@@ -11,7 +11,7 @@ namespace FDRCheck.Controls
     /// <summary>
     /// Interaction logic for VennyPanel.xaml
     /// </summary>
-    public partial class VennyPanel : UserControl
+    public partial class VennyPanel : DockPanel
     {
         private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = FileFilters.Excel };
