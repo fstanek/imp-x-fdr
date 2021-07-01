@@ -33,7 +33,7 @@ namespace FDRCheck.Models
             set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
         }
 
-        public override string ScriptName => "Resources/annika_master_score.py";
+        public override string ScriptName => "Resources/chemical-investigations-annika.py";
 
         public override IEnumerable<string> GetArguments()
         {
