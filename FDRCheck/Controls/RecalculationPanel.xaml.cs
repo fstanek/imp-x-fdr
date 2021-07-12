@@ -32,7 +32,12 @@ namespace FDRCheck.Controls
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
         {
             if (inputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
+            {
                 jobConfiguration.InputFileName = inputFileDialog.FileName;
+
+                if (string.IsNullOrWhiteSpace(jobConfiguration.OutputFileName))
+                    jobConfiguration.OutputFileName = Path.GetDirectoryName(jobConfiguration.InputFileName);
+            }
         }
 
         private void BrowseLibrary_Click(object sender, RoutedEventArgs e)
@@ -63,7 +68,7 @@ namespace FDRCheck.Controls
 
             if (!FileHelper.IsValidFileName(jobConfiguration.OutputFileName))
             {
-                WindowHelper.ShowError(this, "Invalid output file path.");
+                WindowHelper.ShowError(this, "Invalid output path.");
                 return;
             }
 
