@@ -23,7 +23,7 @@ namespace FDRCheck.Controls
             InitializeComponent();
 
             pythonEngine.MessageReceived += logPanel.AddMessage;
-            jobConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support.xlsx");
+            jobConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support_peplib1.xlsx");
 
             foreach (var searchEngine in ScriptHelper.GetSearchEngines("Resources/search-engines/"))
                 jobConfiguration.SearchEngines.Add(searchEngine);
@@ -36,7 +36,11 @@ namespace FDRCheck.Controls
                 jobConfiguration.InputFileName = inputFileDialog.FileName;
 
                 if (string.IsNullOrWhiteSpace(jobConfiguration.OutputFileName))
-                    jobConfiguration.OutputFileName = Path.GetDirectoryName(jobConfiguration.InputFileName);
+                {
+                    var directoryName = Path.GetDirectoryName(jobConfiguration.InputFileName);
+                    var fileName = Path.GetFileNameWithoutExtension(jobConfiguration.InputFileName);
+                    jobConfiguration.OutputFileName = Path.Combine(directoryName, $"{fileName}_output");
+                }
             }
         }
 
