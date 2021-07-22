@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using FDRCheck.Utils;
+using System.Collections.Generic;
 
 namespace FDRCheck.Models
 {
-    public class JobConfiguration : ConfigurationBase
+    public abstract class JobConfiguration : ConfigurationBase
     {
         private string inputFileName;
         private string libraryFileName;
@@ -34,23 +34,21 @@ namespace FDRCheck.Models
             set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
         }
 
-        public SearchEngine SearchEngine { get; set; }
-        public ObservableCollection<SearchEngine> SearchEngines { get; } = new ObservableCollection<SearchEngine>();
-
-        public override string ScriptName => SearchEngine.ScriptName;
-
-        public override IEnumerable<string> GetArguments()
+        public override IEnumerable<string> Arguments
         {
-            yield return InputFileName;
-            yield return LibraryFileName;
-            yield return OutputFileName;
+            get
+            {
+                yield return InputFileName;
+                yield return LibraryFileName;
+                yield return OutputFileName;
+            }
         }
 
-        public override void Clear()
+        public override void Reset()
         {
             InputFileName = null;
-            LibraryFileName = null;
             OutputFileName = null;
+            LibraryFileName = ScriptHelper.GetDefaultLibraryFileName();
         }
     }
 }

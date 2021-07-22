@@ -5,8 +5,13 @@ namespace FDRCheck.Models
     public abstract class ConfigurationBase : BaseModel
     {
         public abstract string ScriptName { get; }
+        public abstract IEnumerable<string> Arguments { get; }
 
-        public abstract IEnumerable<string> GetArguments();
-        public abstract void Clear();
+        public ConfigurationBase()
+        {
+            Reset();
+        }
+
+        public abstract void Reset();
     }
 }

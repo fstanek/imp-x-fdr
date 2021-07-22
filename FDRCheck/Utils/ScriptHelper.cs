@@ -26,5 +26,10 @@ namespace FDRCheck.Utils
                 };
             }
         }
+
+        public static string GetDefaultLibraryFileName()
+        {
+            return Path.GetFullPath("Resources/libraries/support_peplib1.xlsx");
+        }
     }
 }

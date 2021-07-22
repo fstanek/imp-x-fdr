@@ -11,6 +11,12 @@
         <models:VennConfiguration x:Name="vennConfiguration" />
     </DockPanel.DataContext>
 
+    <Border BorderBrush="Orange" Background="Bisque" BorderThickness="1" Margin="1" Padding="5 3" DockPanel.Dock="Top">
+        <StackPanel>
+            <TextBlock TextWrapping="WrapWithOverflow">Visualize the overlap of identified cross-links using "…venn_input.xlsx" files from FDR recalculation as input.</TextBlock>
+        </StackPanel>
+    </Border>
+
     <GroupBox Header="Venn data" DockPanel.Dock="Top">
         <StackPanel Orientation="Vertical">
             <controls:VennyInputPanel DataContext="{Binding VennSegments[0]}"></controls:VennyInputPanel>
@@ -40,7 +46,7 @@
 
         <Button Grid.Column="0" IsEnabled="{Binding IsIdle}" Click="Run_Click">Create Venn Diagram</Button>
         <Button Grid.Column="1" IsEnabled="{Binding IsIdle}" Click="Open_Click">Open output folder</Button>
-        <Button Grid.Column="2" IsEnabled="{Binding IsIdle}" Click="Clear_Click">Clear</Button>
+        <Button Grid.Column="2" IsEnabled="{Binding IsIdle}" Click="Clear_Click">Reset</Button>
     </Grid>
 
     <controls:LogPanel x:Name="logPanel" MinHeight="100" DockPanel.Dock="Top"></controls:LogPanel>

@@ -40,5 +40,19 @@ namespace FDRCheck.Utils
             if (fileInfo.Directory.Exists)
                 Process.Start("explorer.exe", fileInfo.Directory.FullName);
         }
+
+        public static string GetOutputFileName(string path, string extension)
+        {
+            var directoryName = Path.GetDirectoryName(path);
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            return Path.Combine(directoryName, $"{fileName}_output{extension}");
+        }
+
+        public static string GetOutputFolderName(string path)
+        {
+            var directory = Path.GetDirectoryName(path);
+            var fileName = Path.GetFileNameWithoutExtension(path);
+            return Path.Combine(directory, $"{fileName}_output{Path.DirectorySeparatorChar}");
+        }
     }
 }

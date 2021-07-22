@@ -28,18 +28,9 @@ namespace FDRCheck.Models
         }
 
         public override string ScriptName => throw new System.NotImplementedException();
+        public override IEnumerable<string> Arguments => throw new System.NotImplementedException();
 
-        public VennConfiguration()
-        {
-            Clear();
-        }
-
-        public override IEnumerable<string> GetArguments()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public override void Clear()
+        public override void Reset()
         {
             VennSegments = new[]
              {

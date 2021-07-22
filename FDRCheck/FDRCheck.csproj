@@ -10,7 +10,8 @@
 		<!--<DisableWinExeOutputInference>true</DisableWinExeOutputInference>-->
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<AssemblyName>IMP XDRF</AssemblyName>
+		<AssemblyName>IMP_X_FDR</AssemblyName>
+		<RootNamespace>IMP_X_FDR</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -22,9 +23,5 @@
 		<None Update="Resources\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Resources\libraries\" />
 	</ItemGroup>
 </Project>

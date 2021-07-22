@@ -70,7 +70,7 @@ namespace FDRCheck.Controls
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-            vennConfiguration.Clear();
+            vennConfiguration.Reset();
         }
 
         private void ShowError(string text)

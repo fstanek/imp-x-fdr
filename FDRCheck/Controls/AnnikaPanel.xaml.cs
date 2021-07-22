@@ -25,13 +25,15 @@ namespace FDRCheck.Controls
             InitializeComponent();
 
             pythonEngine.MessageReceived += logPanel.AddMessage;
-            annikaConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support.xlsx");
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
         {
             if (inputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
+            {
                 annikaConfiguration.InputFileName = inputFileDialog.FileName;
+                annikaConfiguration.OutputFileName = FileHelper.GetOutputFolderName(annikaConfiguration.InputFileName);
+            }
         }
 
         private void BrowseLibrary_Click(object sender, RoutedEventArgs e)
@@ -43,7 +45,7 @@ namespace FDRCheck.Controls
         private void BrowseOutput_Click(object sender, RoutedEventArgs e)
         {
             if (outputFolderDialog.ShowDialog(WindowHelper.GetWin32Window(this)) == DialogResult.OK)
-                annikaConfiguration.OutputFolderName = outputFolderDialog.SelectedPath;
+                annikaConfiguration.OutputFileName = outputFolderDialog.SelectedPath;
         }
 
         private void Run_Click(object sender, RoutedEventArgs e)
@@ -60,7 +62,7 @@ namespace FDRCheck.Controls
                 return;
             }
 
-            if (!FileHelper.IsValidFileName(annikaConfiguration.OutputFolderName))
+            if (!FileHelper.IsValidFileName(annikaConfiguration.OutputFileName))
             {
                 WindowHelper.ShowError(this, "Invalid output file path.");
                 return;
@@ -69,19 +71,19 @@ namespace FDRCheck.Controls
             Task.Run(() =>
             {
                 annikaConfiguration.IsIdle = false;
-                pythonEngine.Run(annikaConfiguration.ScriptName, annikaConfiguration.GetArguments());
+                pythonEngine.Run(annikaConfiguration.ScriptName, annikaConfiguration.Arguments);
                 annikaConfiguration.IsIdle = true;
             });
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            FileHelper.TryOpenDirectory(annikaConfiguration.OutputFolderName);
+            FileHelper.TryOpenDirectory(annikaConfiguration.OutputFileName);
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-            annikaConfiguration.Clear();
+            annikaConfiguration.Reset();
         }
     }
 }

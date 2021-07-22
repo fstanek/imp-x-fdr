@@ -23,54 +23,44 @@ namespace FDRCheck.Controls
             InitializeComponent();
 
             pythonEngine.MessageReceived += logPanel.AddMessage;
-            jobConfiguration.LibraryFileName = Path.GetFullPath("Resources/libraries/support_peplib1.xlsx");
-
-            foreach (var searchEngine in ScriptHelper.GetSearchEngines("Resources/search-engines/"))
-                jobConfiguration.SearchEngines.Add(searchEngine);
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
         {
             if (inputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
             {
-                jobConfiguration.InputFileName = inputFileDialog.FileName;
-
-                if (string.IsNullOrWhiteSpace(jobConfiguration.OutputFileName))
-                {
-                    var directoryName = Path.GetDirectoryName(jobConfiguration.InputFileName);
-                    var fileName = Path.GetFileNameWithoutExtension(jobConfiguration.InputFileName);
-                    jobConfiguration.OutputFileName = Path.Combine(directoryName, $"{fileName}_output");
-                }
+                configuration.InputFileName = inputFileDialog.FileName;
+                configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
             }
         }
 
         private void BrowseLibrary_Click(object sender, RoutedEventArgs e)
         {
             if (libraryFileDialog.ShowDialog(Window.GetWindow(this)) == true)
-                jobConfiguration.LibraryFileName = libraryFileDialog.FileName;
+                configuration.LibraryFileName = libraryFileDialog.FileName;
         }
 
         private void BrowseOutput_Click(object sender, RoutedEventArgs e)
         {
             if (outputFileDialog.ShowDialog(Window.GetWindow(this)) == true)
-                jobConfiguration.OutputFileName = outputFileDialog.FileName;
+                configuration.OutputFileName = outputFileDialog.FileName;
         }
 
         private void Run_Click(object sender, RoutedEventArgs e)
         {
-            if (!File.Exists(jobConfiguration.InputFileName))
+            if (!File.Exists(configuration.InputFileName))
             {
                 WindowHelper.ShowError(this, "Input file does not exist.");
                 return;
             }
 
-            if (!File.Exists(jobConfiguration.LibraryFileName))
+            if (!File.Exists(configuration.LibraryFileName))
             {
                 WindowHelper.ShowError(this, "Library file does not exist.");
                 return;
             }
 
-            if (!FileHelper.IsValidFileName(jobConfiguration.OutputFileName))
+            if (!FileHelper.IsValidFileName(configuration.OutputFileName))
             {
                 WindowHelper.ShowError(this, "Invalid output path.");
                 return;
@@ -78,20 +68,20 @@ namespace FDRCheck.Controls
 
             Task.Run(() =>
             {
-                jobConfiguration.IsIdle = false;
-                pythonEngine.Run(jobConfiguration.SearchEngine.ScriptName, jobConfiguration.GetArguments());
-                jobConfiguration.IsIdle = true;
+                configuration.IsIdle = false;
+                pythonEngine.Run(configuration.SearchEngine.ScriptName, configuration.Arguments);
+                configuration.IsIdle = true;
             });
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            FileHelper.TryOpenDirectory(jobConfiguration.OutputFileName);
+            FileHelper.TryOpenDirectory(configuration.OutputFileName);
         }
 
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
-            jobConfiguration.Clear();
+            configuration.Reset();
         }
     }
 }
