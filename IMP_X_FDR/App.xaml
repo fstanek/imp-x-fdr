@@ -1,0 +1,11 @@
+﻿<Application x:Class="IMP_X_FDR.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <Style x:Key="BrowseButton" TargetType="{x:Type Button}">
+            <Setter Property="Content" Value="..."/>
+            <Setter Property="Padding" Value="3 0"/>
+        </Style>
+    </Application.Resources>
+</Application>
