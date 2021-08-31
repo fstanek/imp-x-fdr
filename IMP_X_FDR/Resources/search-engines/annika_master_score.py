@@ -6,7 +6,7 @@ import argparse
 import sys
 xlrd.xlsx.ensure_elementtree_imported(False, None)
 xlrd.xlsx.Element_has_iter = True
-
+from matplotlib.pyplot import figure
 
 
 parser = argparse.ArgumentParser()
@@ -70,12 +70,17 @@ list_of_peptides_per_group = []
 # all peptide sequences present in the excel document are read one by oneand the added to the list of groups
 # list of peptides per group will be permanently emptied to make space for the other groups 
 # the number of list of peptides per group is static, not dynamic and should be kept constant
+
+pivot_excel = 1
+
 for i in range(1,number_groups+1):
-    for j in range(1,peptides_per_group[i-1]+1):
-        list_of_peptides_per_group.append(worksheet_groups.cell(((i-1)*(peptides_per_group[i-1]+1))+j, 0).value)
-    a = list_of_peptides_per_group
-    list_of_groups.append(a)
-    list_of_peptides_per_group = []
+	if i!=1:
+		pivot_excel = pivot_excel+peptides_per_group[i-2]+1
+	list_of_peptides_per_group = []
+	for j in range(0,peptides_per_group[i-1]):
+		list_of_peptides_per_group.append(worksheet_groups.cell(pivot_excel+j, 0).value)
+	a = list_of_peptides_per_group
+	list_of_groups.append(a)
 
 
 #name_file_annika= input("please copy-paste the whole name of the document with the xlsx extension as well:")
@@ -206,9 +211,7 @@ unique_crosslinks = list(map(list,unique(map(tuple,unique_crosslinks))))
 list_of_scores_xlinkx = list(set(list_of_scores_xlinkx))
 list_of_scores_xlinkx.sort()
 
-#erase afterwards
-#fdr_cutoff_value = input("please type in the fdr cutoff value (ex:0.05): ")
-fdr_cutoff_value = "X"
+
 temp1 = []
 temp2 = []
 
@@ -226,7 +229,6 @@ def fdr_diagamm(list_crosslinks):
     col = 0
 
     worksheet.write(0,0, "Results")
-    worksheet.write(2,0, "total number of CSMs:")
     worksheet.write(3,0, "total number of unique XLs:")
     worksheet.write(4,0, "all True crosslinks: ")
     worksheet.write(5,0, "homeotypic crosslinks:")
@@ -241,7 +243,10 @@ def fdr_diagamm(list_crosslinks):
     worksheet.write(3,3,"number of XLs post-score cut-off 1%:")
 
 
-    worksheet.set_column(0,0,30)
+    worksheet.set_column(0,0,40)
+    worksheet.set_column(0,1,40)
+    worksheet.set_column(0,2,40)
+    worksheet.set_column(0,3,40)
 
     
 
@@ -351,15 +356,13 @@ def fdr_diagamm(list_crosslinks):
     
     plt.plot(to_be_ploted_x,to_be_ploted_y)
 
-    plt.title('Real FDR dependent of the score')
+    plt.title('Real FDR dependent on the score')
     plt.xlabel('Score')
     plt.ylabel('FDR')
     alarm_005 = False
     alarm_001 = False
-
     
     try:
-        worksheet.write(2,1,"not calculated")
         worksheet.write(3,1,correct_no_homo_XL[0]+homo_XL[0]+false_XL[0])
         worksheet.write(4,1,correct_no_homo_XL[0]+homo_XL[0])
         worksheet.write(5,1,homo_XL[0])
@@ -374,6 +377,7 @@ def fdr_diagamm(list_crosslinks):
     gold = [correct_no_homo_XL[0]]
     silver = [homo_XL[0]]
     bronze = [false_XL[0]]
+    score_bar = [to_be_ploted_x[0]]
 
 
     plt.scatter(to_be_ploted_x[0],to_be_ploted_y[0])
@@ -389,6 +393,7 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
                 if to_be_ploted_y[i]<=0.01:
                     alarm_001 = True
                     worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
@@ -405,6 +410,7 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
     elif to_be_ploted_y[0]<=0.05 and to_be_ploted_y[0]>0.01:
         for i in range(len(to_be_ploted_x)):
             if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
@@ -416,6 +422,7 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
 
     workbook.close()  
  #
@@ -426,29 +433,41 @@ def fdr_diagamm(list_crosslinks):
  # #
  # #
  #    
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_ScorevsFDR.svg")
+    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_FDR_at_specific_score.svg")
     plt.clf()
 
     import numpy as np
     
     b_bronze = list (np.add(gold, silver))
 
-    plt.bar(bar_graph,gold,0.3,label="correct XL",color="green")
-    plt.bar(bar_graph,silver,0.3,bottom=gold, label="homeotypic",color="cyan")
-    plt.bar(bar_graph,bronze,0.3,bottom=b_bronze, label="false",color="red")
+    plt.bar(bar_graph,gold,label="true",color="green",align='center')
+    plt.bar(bar_graph,silver,bottom=gold, label="true homeotypic",color="lawngreen",align='center')
+    plt.bar(bar_graph,bronze,bottom=b_bronze, label="false",color="red",align='center')
     
-    plt.xlabel("FDR")
     plt.ylabel("Number of crosslinks")
-    plt.title("Type of crosslinks with the FDRCUTOFF="+ fdr_cutoff_value)
     plt.legend()
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_numberXLs.svg")
+    plt.tick_params(
+    axis='x',          # changes apply to the x-axis
+    which='both',
+    bottom=False,
+    top=False,
+    labelbottom=False)
+
+    cell_table = []
+    cell_table.append(gold)
+    cell_table.append(silver)
+    cell_table.append(bronze)
+    cell_table.append(score_bar)
+    plt.table(cellText=cell_table, cellLoc='center', rowLabels=["true","true homeotypic","false","score cut-off"],colLabels=bar_graph ,rowLoc='left' ,colLoc='center', loc='bottom', edges='closed')
+    
+    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_XL.svg",bbox_inches = "tight")
 
     plt.clf()
     plt.xlabel("Score")
     plt.ylabel("Number of crosslinks")
-    plt.stackplot(list_of_scores_xlinkx,correct_no_homo_XL,homo_XL,false_XL,labels=["correct","correct homeotypic","false"], colors=["green","cyan","red"])
+    plt.stackplot(list_of_scores_xlinkx,correct_no_homo_XL,homo_XL,false_XL,labels=["true","true homeotypic","false"], colors=["green","lawngreen","red"])
     plt.legend()
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_ScorevsNumberXLs.svg")
+    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_XL_at_specific_score.svg")
 #
 #
 #

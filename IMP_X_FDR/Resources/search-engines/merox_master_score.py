@@ -2,18 +2,32 @@
 import xlsxwriter
 import csv
 import argparse
+# import the necessary library in order to work with xlsx sheets
+import xlrd
+import os
+from zipfile import ZipFile
+from openpyxl import Workbook
+import csv
+import matplotlib.pyplot as plt
+import numpy as np
+from openpyxl import Workbook
+import csv
+import shutil
+
+
+xlrd.xlsx.ensure_elementtree_imported(False, None)
+xlrd.xlsx.Element_has_iter = True
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_file_name")
 parser.add_argument("support_file_name")
 parser.add_argument("output_file_name")
-parser.add_argument("-sintra", "--score_intralink",help="introduce the Intraprotein XL cut-off score for the selected FDR. It can be found in -Show Decoy analysis-",type=float, default=0)
-parser.add_argument("-sinter", "--score_interlink",help="introduce the Interprotein XL cut-off score for the selected FDR. It can be found in -Show Decoy analysis- ",type=float, default=0)
+parser.add_argument("-sintra", "--score_intralink",help="introduce the intraprotein XL cut-off score for the selected FDR. It can be found in -Show decoy analysis-",type=float, default=0)
+parser.add_argument("-sinter", "--score_interlink",help="introduce the interprotein XL cut-off score for the selected FDR. It can be found in -Show decoy analysis- ",type=float, default=0)
 
 args = parser.parse_args()
 
-# import the necessary library in order to work with xlsx sheets
-import xlrd
+
 
 # open the sheetspreadfile and the respective sheet
 groups_support_file = args.support_file_name
@@ -67,21 +81,29 @@ list_of_peptides_per_group = []
 # all peptide sequences present in the excel document are read one by oneand the added to the list of groups
 # list of peptides per group will be permanently emptied to make space for the other groups 
 # the number of list of peptides per group is static, not dynamic and should be kept constant
+pivot_excel = 1
+
 for i in range(1,number_groups+1):
-    for j in range(1,peptides_per_group[i-1]+1):
-        list_of_peptides_per_group.append(worksheet_groups.cell(((i-1)*(peptides_per_group[i-1]+1))+j, 0).value)
-    a = list_of_peptides_per_group
-    list_of_groups.append(a)
-    list_of_peptides_per_group = []
+	if i!=1:
+		pivot_excel = pivot_excel+peptides_per_group[i-2]+1
+	list_of_peptides_per_group = []
+	for j in range(0,peptides_per_group[i-1]):
+		list_of_peptides_per_group.append(worksheet_groups.cell(pivot_excel+j, 0).value)
+	a = list_of_peptides_per_group
+	list_of_groups.append(a)
 
 
 # take the file with the zhrm extension 
 name_file_merox2= args.input_file_name
 
 
+target = os.path.splitext(args.input_file_name)[0] +"_.zhrm"
+
+shutil.copyfile(name_file_merox2, target)
+
 #convert the file with .zhrm extension into a .zip file in order to make the data accesible
-import os
-my_file = name_file_merox2
+
+my_file = target
 base = os.path.splitext(my_file)[0]
 name_of_the_image = base
 base = base + '.zip'
@@ -90,7 +112,6 @@ os.rename(my_file, base)
 
 
 
-from zipfile import ZipFile 
   
 # specifying the zip file name 
 file_name = base
@@ -109,8 +130,7 @@ with ZipFile(file_name, 'r') as zip:
     print('Done!') 
 #we actually don't need the spectra extracted 
 
-from openpyxl import Workbook
-import csv
+
 
 
 #read every line ('counter' is there to keep the counting of each line) from the Result.csv file 
@@ -209,22 +229,26 @@ for i in range(counter):
         total_position_2 = str(int(position_take_2[1])+int(site_2_starting_position)-1)
 
     #in case there are two binding aminoacids
+    try:
+        score_holder = float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6])
 
-    score_holder = float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6])
-
-    if pivot[22].find("#")!=-1:
-        place = pivot[22].find("#")
-        comparable = float(pivot[22][0+place+1]+pivot[22][1+place+1]+pivot[22][2+place+1]+pivot[22][3+place+1]+pivot[22][4+place+1]+pivot[22][5+place+1]+pivot[22][6+place+1])
-        if comparable>=float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6]):
-            score_holder= comparable
-        else:
-            score_holder= float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6])
-        #in case there are three binding aminoacids
-        if pivot[22].find("#", place+1)!=-1:
-            place2 = pivot[22].find("#", place+1)
-            comparable = float(pivot[22][0+place2+1]+pivot[22][1+place2+1]+pivot[22][2+place2+1]+pivot[22][3+place2+1]+pivot[22][4+place2+1]+pivot[22][5+place2+1]+pivot[22][6+place2+1])
-            if comparable>=score_holder:
+        if pivot[22].find("#")!=-1:
+            place = pivot[22].find("#")
+            comparable = float(pivot[22][0+place+1]+pivot[22][1+place+1]+pivot[22][2+place+1]+pivot[22][3+place+1]+pivot[22][4+place+1]+pivot[22][5+place+1]+pivot[22][6+place+1])
+            if comparable>=float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6]):
                 score_holder= comparable
+            else:
+                score_holder= float(pivot[22][0]+pivot[22][1]+pivot[22][2]+pivot[22][3]+pivot[22][4]+pivot[22][5]+pivot[22][6])
+            #in case there are three binding aminoacids
+            if pivot[22].find("#", place+1)!=-1:
+                place2 = pivot[22].find("#", place+1)
+                comparable = float(pivot[22][0+place2+1]+pivot[22][1+place2+1]+pivot[22][2+place2+1]+pivot[22][3+place2+1]+pivot[22][4+place2+1]+pivot[22][5+place2+1]+pivot[22][6+place2+1])
+                if comparable>=score_holder:
+                    score_holder= comparable
+    except:
+        score_holder = float(pivot[0])
+
+
 
 
 
@@ -490,21 +514,24 @@ def fdr_diagamm(list_crosslinks):
     col = 0
 
     worksheet.write(0,0, "Results")
-    worksheet.write(2,0, "total number of CSMs:")
-    worksheet.write(3,0, "total number of unique XLs:")
-    worksheet.write(4,0, "all True crosslinks: ")
-    worksheet.write(5,0, "homeotypic crosslinks:")
-    worksheet.write(6,0, "non-homeotypic crosslinks:")
-    worksheet.write(7,0, "false crosslinks")
+    worksheet.write(2,0, "Total number of CSMs:")
+    worksheet.write(3,0, "Total number of unique XLs:")
+    worksheet.write(4,0, "All True crosslinks: ")
+    worksheet.write(5,0, "Homeotypic crosslinks:")
+    worksheet.write(6,0, "Non-homeotypic crosslinks:")
+    worksheet.write(7,0, "False crosslinks")
 
-    worksheet.write(9,0, "all crosslinks")
-    worksheet.write(9,1, "true crosslinks")
-    worksheet.write(9,2, "false crosslinks")
+    worksheet.write(9,0, "All crosslinks")
+    worksheet.write(9,1, "True crosslinks")
+    worksheet.write(9,2, "False crosslinks")
 
     worksheet.write(2,3,"number of XLs post-score cut-off 5%:")
     worksheet.write(3,3,"numebr of XLs post-score cut-off 1%:")
 
-    worksheet.set_column(0,0,30)
+    worksheet.set_column(0,0,40)
+    worksheet.set_column(0,1,40)
+    worksheet.set_column(0,2,40)
+    worksheet.set_column(0,3,40)
 
     
     # open the file in the write mode
@@ -529,7 +556,6 @@ def fdr_diagamm(list_crosslinks):
     homo_XL = []
     false_XL = []
 
-    import matplotlib.pyplot as plt
 
 
     for i in range(len(list_of_scores)):
@@ -595,10 +621,11 @@ def fdr_diagamm(list_crosslinks):
                     list_of_lists[i][3]=SG2_name
 
                 return list_of_lists
-
-            temp1 = working_on_name_of_the_protein(temp1)
-            temp2 = working_on_name_of_the_protein(temp2)
-
+            try:
+                temp1 = working_on_name_of_the_protein(temp1)
+                temp2 = working_on_name_of_the_protein(temp2)
+            except:
+                print("name of the protein not appropriate!")
             for m in range(all_crosslinks):
                 temp1[m].sort()
                 temp1[m]=str(temp1[m])
@@ -634,7 +661,7 @@ def fdr_diagamm(list_crosslinks):
     
     plt.plot(to_be_ploted_x,to_be_ploted_y)
 
-    plt.title('Real FDR dependent of the score')
+    plt.title('Real FDR dependent on the score')
     plt.xlabel('Score')
     plt.ylabel('FDR')
     alarm_005 = False
@@ -657,6 +684,7 @@ def fdr_diagamm(list_crosslinks):
     gold = [correct_no_homo_XL[0]]
     silver = [homo_XL[0]]
     bronze = [false_XL[0]]
+    score_bar = [to_be_ploted_x[0]]
 
 
     plt.scatter(to_be_ploted_x[0],to_be_ploted_y[0])
@@ -672,6 +700,7 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
                 if to_be_ploted_y[i]<=0.01:
                     alarm_001 = True
                     worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
@@ -688,6 +717,7 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
     elif to_be_ploted_y[0]<=0.05 and to_be_ploted_y[0]>0.01:
         for i in range(len(to_be_ploted_x)):
             if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
@@ -699,32 +729,46 @@ def fdr_diagamm(list_crosslinks):
                 gold.append(correct_no_homo_XL[i])
                 silver.append(homo_XL[i])
                 bronze.append(false_XL[i])
+                score_bar.append(to_be_ploted_x[i])
         
     workbook.close()
 
     plt.savefig(os.path.splitext(args.output_file_name)[0] + "_ScorevsFDR.svg")
     plt.clf()
 
-    import numpy as np
     
     b_bronze = list (np.add(gold, silver))
 
-    plt.bar(bar_graph,gold,label="correct XL",color="green")
-    plt.bar(bar_graph,silver,bottom=gold, label="homeotypic",color="cyan")
+    plt.bar(bar_graph,gold,label="true",color="green")
+    plt.bar(bar_graph,silver,bottom=gold, label="true homeotypic",color="lawngreen")
     plt.bar(bar_graph,bronze,bottom=b_bronze, label="false",color="red")
     
-    plt.xlabel("FDR")
     plt.ylabel("Number of crosslinks")
-    plt.title("Type of crosslinks with the FDRCUTOFF="+ fdr_cutoff_value)
+    plt.title("FDR-CUT-OFF-SCORE ="+ fdr_cutoff_value)
     plt.legend()
-    plt.savefig(os.path.splitext(args.output_file_name)[0] + "_numberXLs.svg")
+    plt.tick_params(
+    axis='x',
+    which='both',
+    bottom=False,
+    top=False,
+    labelbottom=False)
+
+    cell_table = []
+    cell_table.append(gold)
+    cell_table.append(silver)
+    cell_table.append(bronze)
+    cell_table.append(score_bar)
+    plt.table(cellText=cell_table, cellLoc='center', rowLabels=["true","true homeotypic","false","at score"],colLabels=bar_graph ,rowLoc='left' ,colLoc='center', loc='bottom', edges='closed')
+    
+
+    plt.savefig(os.path.splitext(args.output_file_name)[0] + "_numberXLs.svg",bbox_inches = "tight")
 
     plt.clf()
     plt.xlabel("Score")
     plt.ylabel("Number of crosslinks")
-    plt.stackplot(list_of_scores,correct_no_homo_XL,homo_XL,false_XL,labels=["correct","correct homeotypic","false"], colors=["green","cyan","red"])
+    plt.stackplot(list_of_scores,correct_no_homo_XL,homo_XL,false_XL,labels=["true","true homeotypic","false"], colors=["green","lawngreen","red"])
     plt.legend()
-    plt.savefig(os.path.splitext(args.output_file_name)[0] + "ScorevsNumber.svg")
+    plt.savefig(os.path.splitext(args.output_file_name)[0] + "_ScorevsNumber.svg")
 
     writer.writerows(list_true_XL_csv)
     writer.writerows(list_false_XL_csv)
@@ -767,23 +811,24 @@ for i in range(good_count):
    # print(csms4[i])
 
 print(str(len(csms4)) +" out of "+ str(len(csms_clone3)) +" are correct")
-
-# just for testing, will be erased later
-for i in range(len(name_and_position_of_the_pair)):
-    j = name_and_position_of_the_pair[i][0].find("GN=")+3
-    k = name_and_position_of_the_pair[i][1].find("GN=")+3
-    
-    little_pivot1 = list(name_and_position_of_the_pair[i][0])
-    little_pivot2 = list(name_and_position_of_the_pair[i][1])
-    GN1_name = ""
-    GN2_name = "" 
-    while(little_pivot1[j]!=' '):
-        GN1_name = GN1_name + little_pivot1[j]
-        j=j+1
-    while(little_pivot2[k]!=' '):
-        GN2_name = GN2_name + little_pivot2[k]
-        k=k+1
-
+try:
+    # just for testing, will be erased later
+    for i in range(len(name_and_position_of_the_pair)):
+        j = name_and_position_of_the_pair[i][0].find("GN=")+3
+        k = name_and_position_of_the_pair[i][1].find("GN=")+3
+        
+        little_pivot1 = list(name_and_position_of_the_pair[i][0])
+        little_pivot2 = list(name_and_position_of_the_pair[i][1])
+        GN1_name = ""
+        GN2_name = "" 
+        while(little_pivot1[j]!=' '):
+            GN1_name = GN1_name + little_pivot1[j]
+            j=j+1
+        while(little_pivot2[k]!=' '):
+            GN2_name = GN2_name + little_pivot2[k]
+            k=k+1
+except:
+    pass
     #
     # print(GN1_name, name_and_position_of_the_pair[i][2],GN2_name,name_and_position_of_the_pair[i][3])
     mini_list = []
@@ -797,17 +842,47 @@ fdr_diagamm(dictionary_of_best_score)
 
 print(len(dictionary_of_best_score),good_count)
 
-os.remove("coreResult.csv")
-os.remove("decoy.csv")
-os.remove("db.fasta")
-os.remove("properties.mxf")
-os.remove("proteinLength.csv")
-os.remove("report.txt")
-os.remove("Result.csv")
-os.remove("Result.xlsx")
+try:
+    os.remove("coreResult.csv")
+except:
+    pass
+
+try:
+    os.remove("decoy.csv")
+except:
+    pass
+
+try:
+    os.remove("properties.mxf")
+except:
+    pass
+
+try:
+    os.remove("proteinLength.csv")
+except:
+    pass
+
+try:
+    os.remove("report.txt")
+except:
+    pass
+
+try:
+    os.remove("Result.csv")
+except:
+    pass
+
+try:
+    os.remove("Result.xlsx")
+except:
+    pass
+
+try:
+    os.remove("db.fasta")
+except:
+    pass
 
 
-my_file = os.path.splitext(base)[0]
-my_file = my_file + '.zhrm'
+target = os.path.splitext(args.input_file_name)[0] + "_.zip"
 
-os.rename(base, my_file)
+os.remove(target)
