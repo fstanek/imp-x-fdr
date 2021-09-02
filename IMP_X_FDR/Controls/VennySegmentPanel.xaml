@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:models="clr-namespace:IMP_X_FDR.Models"
-             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
@@ -16,9 +14,13 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <xctk:ColorPicker SelectedColor="{Binding Color}" Grid.Column="0"></xctk:ColorPicker>
-        <xctk:WatermarkTextBox Text="{Binding FileName}" Watermark="File name" Margin="5 0 0 0" Grid.Column="1"></xctk:WatermarkTextBox>
-        <Button Click="ButtonBrowse_Click" Grid.Column="2" Style="{StaticResource BrowseButton}"></Button>
-        <xctk:WatermarkTextBox Text="{Binding Title}" Watermark="Title" Margin="5 0 0 0" Grid.Column="3"></xctk:WatermarkTextBox>
+        <Button Grid.Column="0" Click="ColorButton_Click">
+            <Button.Background>
+                <SolidColorBrush Color="{Binding Color}"></SolidColorBrush>
+            </Button.Background>
+        </Button>
+        <TextBox Text="{Binding FileName}" Margin="5 0 0 0" Grid.Column="1"></TextBox>
+        <Button Click="BrowseButton_Click" Grid.Column="2" Style="{StaticResource BrowseButton}"></Button>
+        <TextBox Text="{Binding Title}" Margin="5 0 0 0" Grid.Column="3"></TextBox>
     </Grid>
 </UserControl>

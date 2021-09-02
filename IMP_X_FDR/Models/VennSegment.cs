@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using MediaColor = System.Windows.Media.Color;
+using SystemColor = System.Drawing.Color;
 
 namespace IMP_X_FDR.Models
 {
@@ -6,7 +7,7 @@ namespace IMP_X_FDR.Models
     {
         private string fileName;
         private string title;
-        private Color? color;
+        private MediaColor? color;
 
         public string FileName
         {
@@ -20,7 +21,7 @@ namespace IMP_X_FDR.Models
             set { title = value; OnPropertyChanged(nameof(Title)); }
         }
 
-        public Color? Color
+        public MediaColor? Color
         {
             get => color;
             set { color = value; OnPropertyChanged(nameof(Color)); }
@@ -36,6 +37,16 @@ namespace IMP_X_FDR.Models
             FileName = null;
             Title = null;
             Color = null;
+        }
+
+        public SystemColor GetSystemColor()
+        {
+            return SystemColor.FromArgb(Color.Value.R, Color.Value.G, Color.Value.B);
+        }
+
+        public void SetSystemColor(SystemColor color)
+        {
+            Color = MediaColor.FromRgb(color.R, color.G, color.B);
         }
     }
 }

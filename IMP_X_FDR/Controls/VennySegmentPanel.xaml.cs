@@ -4,6 +4,8 @@ using Microsoft.Win32;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using ColorDialog = System.Windows.Forms.ColorDialog;
+using DialogResult = System.Windows.Forms.DialogResult;
 
 namespace IMP_X_FDR.Controls
 {
@@ -12,6 +14,7 @@ namespace IMP_X_FDR.Controls
     /// </summary>
     public partial class VennyInputPanel : UserControl
     {
+        private readonly ColorDialog colorDialog = new ColorDialog { AllowFullOpen = true };
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
 
         public VennyInputPanel()
@@ -19,7 +22,16 @@ namespace IMP_X_FDR.Controls
             InitializeComponent();
         }
 
-        private void ButtonBrowse_Click(object sender, RoutedEventArgs e)
+        private void ColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            var vennSegment = DataContext as VennSegment;
+            colorDialog.Color = vennSegment.GetSystemColor();
+
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+                vennSegment.SetSystemColor(colorDialog.Color);
+        }
+
+        private void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
             if (openFileDialog.ShowDialog(Window.GetWindow(this)) == true)
             {
