@@ -1,8 +1,7 @@
-﻿numpy
-biopython
+﻿biopython
 matplotlib_venn
 openpyxl
 toolz
 venn
-xlrd
+xlrd==1.2.0
 xlsxwriter
