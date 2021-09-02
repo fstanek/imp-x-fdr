@@ -1,4 +1,5 @@
-﻿biopython
+﻿numpy
+biopython
 matplotlib_venn
 openpyxl
 toolz
