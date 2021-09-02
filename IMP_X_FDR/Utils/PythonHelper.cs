@@ -67,11 +67,11 @@ namespace IMP_X_FDR.Utils
         {
             using var process = new Process();
             process.StartInfo.FileName = fileName;
-            process.StartInfo.Arguments = "--version";
+            process.StartInfo.Arguments = arguments;
             process.StartInfo.UseShellExecute = true;
-#if !DEBUG
+//#if !DEBUG
             process.StartInfo.CreateNoWindow = true;
-#endif
+//#endif
             process.Start();
 
             if (milliseconds.HasValue)
@@ -84,7 +84,7 @@ namespace IMP_X_FDR.Utils
 
         private static void TryInstallPackages()
         {
-            Run(pythonPath, $"-m pip install -r {RequirementsPath}");
+            Run(pythonPath, $"-m pip install -r \"{RequirementsPath}\"");
         }
 
         public static void Run(string scriptFileName, IEnumerable<string> arguments, Func<string, bool, Task> messageHandler)
