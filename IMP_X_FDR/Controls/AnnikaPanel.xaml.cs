@@ -15,7 +15,6 @@ namespace IMP_X_FDR.Controls
     /// </summary>
     public partial class AnnikaPanel : DockPanel
     {
-        private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly OpenFileDialog inputFileDialog = new OpenFileDialog { Filter = FileFilters.All };
         private readonly OpenFileDialog libraryFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
         private readonly FolderBrowserDialog outputFolderDialog = new FolderBrowserDialog();
@@ -23,8 +22,6 @@ namespace IMP_X_FDR.Controls
         public AnnikaPanel()
         {
             InitializeComponent();
-
-            pythonEngine.MessageReceived += logPanel.AddMessage;
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
@@ -71,7 +68,7 @@ namespace IMP_X_FDR.Controls
             Task.Run(() =>
             {
                 annikaConfiguration.IsIdle = false;
-                pythonEngine.Run(annikaConfiguration.ScriptName, annikaConfiguration.Arguments);
+                PythonHelper.Run(annikaConfiguration.ScriptName, annikaConfiguration.GetArguments(null), logPanel.AddMessage);
                 annikaConfiguration.IsIdle = true;
             });
         }

@@ -34,14 +34,11 @@ namespace IMP_X_FDR.Models
             set { isIdle = value; OnPropertyChanged(nameof(IsIdle)); }
         }
 
-        public override IEnumerable<string> Arguments
+        public override IEnumerable<string> GetArguments(string inputFileName = null)
         {
-            get
-            {
-                yield return InputFileName;
-                yield return LibraryFileName;
-                yield return OutputFileName;
-            }
+            yield return inputFileName ?? InputFileName;
+            yield return LibraryFileName;
+            yield return OutputFileName;
         }
 
         public override void Reset()

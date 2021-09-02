@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using IMP_X_FDR.Utils;
+using System.Windows;
 
 namespace IMP_X_FDR
 {
@@ -10,6 +11,17 @@ namespace IMP_X_FDR
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            PythonHelper.Initialize();
+
+            if (!PythonHelper.IsPythonInstalled)
+            {
+                MessageBox.Show(this, "No python installation found.\nDownload newest version from www.python.org/downloads/", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Shutdown();
+            }
         }
     }
 }

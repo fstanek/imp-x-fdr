@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:IMP_X_FDR.Controls"
         mc:Ignorable="d"
-        Title="IMP-X-FDR" Height="Auto" Width="600" SizeToContent="Height">
+        Title="IMP-X-FDR" Height="Auto" Width="600" SizeToContent="Height" Loaded="Window_Loaded">
 
     <TabControl SelectedIndex="0">
         <TabItem Header="FDR recalculation">

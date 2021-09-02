@@ -13,14 +13,13 @@ namespace IMP_X_FDR.Controls
     /// </summary>
     public partial class VennyPanel : DockPanel
     {
-        private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = FileFilters.Excel };
 
         public VennyPanel()
         {
             InitializeComponent();
 
-            pythonEngine.MessageReceived += logPanel.AddMessage;
+            //pythonEngine.MessageReceived += logPanel.AddMessage;
         }
 
         private void BrowseOutput_Click(object sender, RoutedEventArgs e)
@@ -58,7 +57,7 @@ namespace IMP_X_FDR.Controls
             Task.Run(() =>
             {
                 vennConfiguration.IsIdle = false;
-                pythonEngine.Run("Resources/venny.py", arguments);
+                PythonHelper.Run("Resources/venny.py", arguments, logPanel.AddMessage);
                 vennConfiguration.IsIdle = true;
             });
         }

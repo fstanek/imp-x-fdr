@@ -2,6 +2,7 @@
 using IMP_X_FDR.Utils;
 using Microsoft.Win32;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +14,6 @@ namespace IMP_X_FDR.Controls
     /// </summary>
     public partial class RecalculationPanel : DockPanel
     {
-        private readonly PythonEngine pythonEngine = new PythonEngine();
         private readonly OpenFileDialog inputFileDialog = new OpenFileDialog { Filter = FileFilters.All };
         private readonly OpenFileDialog libraryFileDialog = new OpenFileDialog { Filter = FileFilters.Excel };
         private readonly SaveFileDialog outputFileDialog = new SaveFileDialog { Filter = FileFilters.Csv };
@@ -21,8 +21,6 @@ namespace IMP_X_FDR.Controls
         public RecalculationPanel()
         {
             InitializeComponent();
-
-            pythonEngine.MessageReceived += logPanel.AddMessage;
         }
 
         private void BrowseInput_Click(object sender, RoutedEventArgs e)
@@ -69,7 +67,21 @@ namespace IMP_X_FDR.Controls
             Task.Run(() =>
             {
                 configuration.IsIdle = false;
-                pythonEngine.Run(configuration.SearchEngine.ScriptName, configuration.Arguments);
+                var inputFileName = default(string);
+
+                if(configuration.SearchEngine.FileConverter != null)
+                {
+                    inputFileName = Path.GetTempFileName();
+                    configuration.SearchEngine.FileConverter.Convert(configuration.InputFileName, inputFileName);
+                }
+
+                var scriptFileName = configuration.SearchEngine.ReferenceScript ?? configuration.SearchEngine.ScriptName;
+                var arguments = configuration.GetArguments(inputFileName).ToArray();
+                PythonHelper.Run(scriptFileName, arguments, logPanel.AddMessage);
+
+                if (File.Exists(inputFileName))
+                    File.Delete(inputFileName);
+
                 configuration.IsIdle = true;
             });
         }

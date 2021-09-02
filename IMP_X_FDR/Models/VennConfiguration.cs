@@ -28,7 +28,7 @@ namespace IMP_X_FDR.Models
         }
 
         public override string ScriptName => throw new System.NotImplementedException();
-        public override IEnumerable<string> Arguments => throw new System.NotImplementedException();
+        public override IEnumerable<string> GetArguments(string inputFileName) => throw new System.NotImplementedException();
 
         public override void Reset()
         {
