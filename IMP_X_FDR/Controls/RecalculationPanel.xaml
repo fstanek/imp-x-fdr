@@ -16,6 +16,7 @@
             <TextBlock TextWrapping="WrapWithOverflow">For XlinkX and MS Annika please export cross-links from Proteome Discoverer in .xlsx format.</TextBlock>
             <TextBlock TextWrapping="WrapWithOverflow">For pLink use the report "...cross-linked_spectra.csv" as input.</TextBlock>
             <TextBlock TextWrapping="WrapWithOverflow">For MeroX directly use results in .zhrm format.</TextBlock>
+            <TextBlock TextWrapping="WrapWithOverflow">For MaxLynx use the crosslinkMsms.txt result file.</TextBlock>
         </StackPanel>
     </Border>
 

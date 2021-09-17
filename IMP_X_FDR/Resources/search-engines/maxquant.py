@@ -1,1 +1,1 @@
-#MaxQuant|annika_master_score.py|IMP_X_FDR.Converters.MaxQuantToAnnikaConverter
+#MaxLynx|annika_master_score.py|IMP_X_FDR.Converters.MaxQuantToAnnikaConverter
