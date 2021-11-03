@@ -6,6 +6,7 @@ The main aim of IMP-X-FDR is to provide an easy to use and automated way for cal
 Additional functionalities are the comparison of crosslink IDs found from different replicates or across different search engines using Venn diagrams as well as to investigate intrinsic properties (mass, pI value, amino-acid sequences analyses, …) of the crosslinks dependent on retention time. The tool thereby allows a comparison of the physicochemical properties of identified crosslinks vs those theoretically formed within the peptide library used.
 
 Installation
+
 After downloading IMP-X-FDR to any local directory, simply execute “IMP_X_FDR.exe”
 In case of missing supporting programs -like Python- on your system, you will be automatically redirected to the respective installation website. Install the suitable version for your computer.
  
