@@ -45,7 +45,7 @@ namespace IMP_X_FDR.Utils
 
         public static string GetDefaultLibraryFileName()
         {
-            return Path.GetFullPath("Resources/libraries/support_peplib1.xlsx");
+            return Path.GetFullPath("Resources/libraries/main_library.xlsx");
         }
     }
 }
