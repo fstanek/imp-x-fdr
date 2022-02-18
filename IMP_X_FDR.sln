@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31321.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMP_X_FDR", "IMP_X_FDR\IMP_X_FDR.csproj", "{0153006F-8AE7-4FF1-9CF1-B9C6C5241B38}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnifier", "XUnifier\XUnifier.csproj", "{FB3777DD-CEFF-43CB-B46F-79599DACDFD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{0153006F-8AE7-4FF1-9CF1-B9C6C5241B38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0153006F-8AE7-4FF1-9CF1-B9C6C5241B38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0153006F-8AE7-4FF1-9CF1-B9C6C5241B38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB3777DD-CEFF-43CB-B46F-79599DACDFD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB3777DD-CEFF-43CB-B46F-79599DACDFD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB3777DD-CEFF-43CB-B46F-79599DACDFD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB3777DD-CEFF-43CB-B46F-79599DACDFD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
