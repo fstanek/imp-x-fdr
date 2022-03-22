@@ -27,4 +27,4 @@ In case of missing supporting programs -like Python- on your system, you will be
 Please refer to the users manual for additional information.
 
 ## Citation
-https://doi.org/10.1101/2021.10.21.465295
+Matzinger et al. Mimicked synthetic ribosomal protein complex for benchmarking crosslinking mass spectrometry workflows. https://doi.org/10.1101/2021.10.21.465295
