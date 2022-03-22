@@ -22,7 +22,9 @@ In order to run the application you need the following software installed:
 2. Unpack the archive
 3. Run `IMP_X_FDR.exe`
 
-After downloading IMP-X-FDR to any local directory, simply execute “IMP_X_FDR.exe”
 In case of missing supporting programs -like Python- on your system, you will be automatically redirected to the respective installation website. Install the suitable version for your computer.
  
 Please refer to the users manual for additional information.
+
+## Citation
+https://doi.org/10.1101/2021.10.21.465295
