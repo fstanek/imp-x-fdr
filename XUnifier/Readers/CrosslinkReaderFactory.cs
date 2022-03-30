@@ -40,6 +40,7 @@ namespace XUnifier
 
             switch (Path.GetExtension(fileName))
             {
+                case FileExtensions.Text:
                 case FileExtensions.CommaSeparated:
                     return new CommaSeparatedReader(stream);
 

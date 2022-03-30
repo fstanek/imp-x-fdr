@@ -18,6 +18,7 @@ namespace XUnifier.Handlers
             readerType = typeof(TReader);
             names = new List<string>();
             actions = new List<Action<CrosslinkReader>>();
+            filters = new List<Action<CrosslinkReader>>();
 
             Initialize();
         }
@@ -55,6 +56,9 @@ namespace XUnifier.Handlers
         {
             foreach (var action in actions)
                 action(reader);
+
+            foreach (var filter in filters)
+                filter(reader);
         }
     }
 }
