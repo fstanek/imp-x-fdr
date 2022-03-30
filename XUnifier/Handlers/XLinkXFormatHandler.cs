@@ -1,39 +1,30 @@
-﻿using XUnifier.Models;
-using XUnifier.Readers;
+﻿using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
-    public class XLinkXFormatHandler : IFormatHandler
+    public class XLinkXFormatHandler : FormatHandlerBase<ExcelReader>
     {
-        public string DisplayName => "XlinkX";
-        public Type ReaderType => typeof(ExcelReader<CrosslinkSpectrumMatch>);
+        public override string DisplayName => "XlinkX";
 
-        public IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> ColumnHandlers
+        protected override void Initialize()
         {
-            get
-            {
-                foreach (var handler in GetColumnHandlers("A", 0))
-                    yield return handler;
-
-                foreach (var handler in GetColumnHandlers("B", 1))
-                    yield return handler;
-
-                yield return reader => reader.Register<double>("XlinkX Score", (csm, value) => csm.Score = value);
-            }
+            RegisterColumns("A", 0);
+            RegisterColumns("B", 1);
+            Register<double>("XlinkX Score", (csm, value) => csm.Score = value);
         }
 
-        private IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> GetColumnHandlers(string discriminator, int index)
+        private void RegisterColumns(string discriminator, int index)
         {
-            yield return reader => reader.Register<string>($"Protein Accession {discriminator}",
-                (csm, value) => csm.LinkerSites[index].Accession = value);
+            Register<string>($"Protein Accession {discriminator}",
+               (csm, value) => csm.LinkerSites[index].Accession = value);
 
-            yield return reader => reader.Register<string>($"Sequence {discriminator}",
+            Register<string>($"Sequence {discriminator}",
                 (csm, value) => csm.LinkerSites[index].Sequence = value);
 
-            yield return reader => reader.Register<int>($"Leading Protein Position {discriminator}",
+            Register<int>($"Leading Protein Position {discriminator}",
                 (csm, value) => csm.LinkerSites[index].ProteinLink = value);
 
-            yield return reader => reader.Register<int>($"Crosslinker Position {discriminator}",
+            Register<int>($"Crosslinker Position {discriminator}",
                 (csm, value) => csm.LinkerSites[index].PeptideLink = value);
         }
     }

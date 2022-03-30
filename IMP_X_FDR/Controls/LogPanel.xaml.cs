@@ -15,7 +15,7 @@ namespace IMP_X_FDR.Controls
             InitializeComponent();
         }
 
-        public async Task AddMessage(string text, bool isError)
+        public async Task AddMessage(string text, bool isError = false)
         {
             await Dispatcher.InvokeAsync(() =>
             {

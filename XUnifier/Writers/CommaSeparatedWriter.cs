@@ -9,12 +9,13 @@ namespace XUnifier.Writers
         private readonly List<Func<TItem, object>> handlers;
         private readonly char separator;
 
-        public CommaSeparatedWriter(string fileName)
+        public CommaSeparatedWriter(Stream stream, char? separator = null)
         {
-            writer = new StreamWriter(fileName);
+            writer = new StreamWriter(stream);
+            this.separator = separator ?? CultureInfo.CurrentCulture.TextInfo.ListSeparator.First();
+
             headers = new List<string>();
             handlers = new List<Func<TItem, object>>();
-            separator = CultureInfo.CurrentCulture.TextInfo.ListSeparator.First();
         }
 
         public void Register(string header, Func<TItem, object> handler)
@@ -30,8 +31,11 @@ namespace XUnifier.Writers
             foreach (var item in items)
             {
                 var columns = handlers.Select(h => h(item));
-                writer.WriteLine(string.Join(separator, columns));
+                var line = string.Join(separator, columns);
+                writer.WriteLine(line);
             }
+
+            writer.Flush();
         }
 
         public void Dispose()

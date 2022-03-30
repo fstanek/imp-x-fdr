@@ -1,32 +1,15 @@
-﻿using IMP_X_FDR.Utils;
-using System.Collections.ObjectModel;
-using System.Linq;
-
-namespace IMP_X_FDR.Models
+﻿namespace IMP_X_FDR.Models
 {
     public class RecalculationConfiguration : JobConfiguration
     {
-        private SearchEngine searchEngine;
+        private bool groupCSMs;
 
-        public SearchEngine SearchEngine 
+        public override string ScriptName => "Resources/search-engines/annika_master_score.py";
+
+        public bool GroupCSMs
         {
-            get => searchEngine; set { searchEngine = value; OnPropertyChanged(nameof(SearchEngine)); }
-        }
-
-        public ObservableCollection<SearchEngine> SearchEngines { get; } = new ObservableCollection<SearchEngine>();
-
-        public override string ScriptName => SearchEngine.ScriptName;
-
-        public override void Reset()
-        {
-            base.Reset();
-
-            SearchEngines.Clear();
-
-            foreach (var searchEngine in ScriptHelper.GetSearchEngines("Resources/search-engines/"))
-                SearchEngines.Add(searchEngine);
-
-            SearchEngine = SearchEngines.First();
+            get => groupCSMs;
+            set { groupCSMs = value; OnPropertyChanged(nameof(GroupCSMs)); }
         }
     }
 }

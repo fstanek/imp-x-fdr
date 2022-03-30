@@ -12,10 +12,7 @@
 
         public LinkerSiteCollection(IEnumerable<LinkerSite> collection) : base(collection)
         {
-        }
 
-        public LinkerSiteCollection(int capacity) : base(capacity)
-        {
         }
     }
 }

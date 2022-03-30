@@ -1,5 +1,4 @@
-﻿using XUnifier.Models;
-using XUnifier.Readers;
+﻿using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
@@ -7,8 +6,9 @@ namespace XUnifier.Handlers
     {
         // TODO bool HasInvertedScore
 
-        string DisplayName { get;}
-        Type ReaderType { get; }
-        IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> ColumnHandlers { get; }
+        string DisplayName { get; }
+
+        bool CanRead(CrosslinkReader reader);
+        void Apply(CrosslinkReader reader);
     }
 }

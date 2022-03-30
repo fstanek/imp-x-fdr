@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Annika",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/Resources/search-engines/annika_master_score.py",
+            "console": "integratedTerminal",
+            "args": [
+                //"C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_KSTY.xlsx",
+                "C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx",
+                "C:\\Users\\stanek\\source\\repos\\imp-x-fdr\\IMP_X_FDR\\Resources\\libraries\\main_library.xlsx",
+                "C:\\temp\\annika_output\\annika_output.csv"
+            ]
+        }
+    ]
+}

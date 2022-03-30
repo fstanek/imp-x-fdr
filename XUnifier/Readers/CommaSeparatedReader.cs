@@ -4,9 +4,9 @@ using XUnifier.Utils;
 
 namespace XUnifier.Readers
 {
-    public class CommaSeparatedReader<TItem> : TableReader<TItem>
-        where TItem : new()
+    public class CommaSeparatedReader : CrosslinkReader
     {
+        // TODO move to TextHelper
         private static readonly char[] Separators = { '\t', ',', ';' };
 
         private StreamReader reader;
@@ -54,6 +54,7 @@ namespace XUnifier.Readers
             return true;
         }
 
+        // TODO move to text helper
         private IEnumerable<char> GetSeparator(string line)
         {
             return from separator in Separators

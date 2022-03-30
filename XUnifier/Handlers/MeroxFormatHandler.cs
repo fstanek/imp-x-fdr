@@ -1,10 +1,11 @@
-﻿using XUnifier.Models;
-using XUnifier.Readers;
+﻿using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
-    public class MeroxFormatHandler : IFormatHandler
+    public class MeroxFormatHandler : FormatHandlerBase<MeroxReader>
     {
+        public const int Score = 0;
+
         public const int Accession1 = 7;
         public const int Sequence1 = 6;
         public const int ProteinLink1 = 8;
@@ -15,33 +16,27 @@ namespace XUnifier.Handlers
         public const int ProteinLink2 = 12;
         public const int PeptideLink2 = 21;
 
-        public const int Score = 0;
+        public override string DisplayName => "MeroX";
 
-        public string DisplayName => "MeroX";
-        public Type ReaderType => typeof(MeroxReader);
-
-        public IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> ColumnHandlers
+        protected override void Initialize()
         {
-            get
-            {
-                return GetColumnHandlers(0, Accession1, Sequence1, ProteinLink1, PeptideLink1).Concat(
-                    GetColumnHandlers(1, Accession2, Sequence2, ProteinLink2, PeptideLink2))
-                    .Append(reader => reader.Register<double>(Score, (csm, value) => csm.Score = value));
-            }
+            Register<double>(Score, (csm, value) => csm.Score = value);
+            RegisterColumns(0, Accession1, Sequence1, ProteinLink1, PeptideLink1);
+            RegisterColumns(1, Accession2, Sequence2, ProteinLink2, PeptideLink2);
         }
 
-        private IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> GetColumnHandlers(int index, int accession, int sequence, int proteinLink, int peptideLink)
+        private void RegisterColumns(int index, int accession, int sequence, int proteinLink, int peptideLink)
         {
-            yield return reader => reader.Register<string>(accession,
+            Register<string>(accession,
                 (csm, value) => csm.LinkerSites[index].Accession = value);
 
-            yield return reader => reader.Register<string>(sequence,
+            Register<string>(sequence,
                 (csm, value) => csm.LinkerSites[index].Sequence = value.Trim('[', ']'));
 
-            yield return reader => reader.Register<int>(proteinLink,
+            Register<int>(proteinLink,
                 (csm, value) => csm.LinkerSites[index].ProteinLink = value);
 
-            yield return reader => reader.Register<string>(peptideLink,
+            Register<string>(peptideLink,
                 (csm, value) => csm.LinkerSites[index].PeptideLink = int.Parse(value.Substring(1)));
         }
     }

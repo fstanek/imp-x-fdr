@@ -1,45 +1,26 @@
 #MS Annika
 import csv
-from numpy.lib.function_base import append
-import xlrd                              #Import xlrd package
-import argparse
 import sys
+import xlrd
+import os
+import xlsxwriter
+import numpy as np
 xlrd.xlsx.ensure_elementtree_imported(False, None)
 xlrd.xlsx.Element_has_iter = True
-from matplotlib.pyplot import figure
+import matplotlib.pyplot as plt
 
+#print(sys.argv)
 
-parser = argparse.ArgumentParser()
-parser.add_argument("input_file_name")
-parser.add_argument("support_file_name")
-parser.add_argument("output_file_name")
+support_file_name = sys.argv[1]
+output_file_name = sys.argv[2]
 
-
-parser.add_argument("-sA", "--sequence_A", type=str,
-                    help="change the the name of the header for the Sequence A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Sequence A")
-parser.add_argument("-sB", "--sequence_B", type=str,
-                    help="change the the name of the header for the Sequence A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Sequence B")
-parser.add_argument("-naprotA","--name_of_protein_A", type=str,
-                    help="change the the name of the header for the Protein-Name-A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Accession A")
-parser.add_argument("-naprotB","--name_of_protein_B", type=str,
-                    help="change the the name of the header for the Protein-Name-A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Accession B")
-parser.add_argument("-bscr", "--best_score", type=str,
-                    help="change the the name of the header for the Best CSM-score of the crosslink. Please introduce quotation marks, especially if the name contains whitespaces!", default="Best CSM Score")
-parser.add_argument("-pospA", "--position_in_protein_A",
-                    help="change the the name of the header for the position of the binding aminoacid in the protein A. Please introduce quotation marks, especially if the name contains whitespaces!",default="In protein A")
-parser.add_argument("-pospB", "--position_in_protein_B",
-                    help="change the the name of the header for the position of the binding aminoacid in the protein B. Please introduce quotation marks, especially if the name contains whitespaces!",default="In protein B")             
-args = parser.parse_args()
-
-#list_crosslinks_connect_acid = ["D","E"]
-#list_crosslinks_connect_lys = ["K","Y","T","S"]
-
-
+### BEGIN LIBRARY -------------------------------------------------------------------
 # open the sheetspreadfile and the respective sheet
-#groups_support_file = input("please introduce the name of the support file: ")
-groups_support_file = args.support_file_name
 
-workbook_groups = xlrd.open_workbook(groups_support_file, on_demand = True)
+print('Reading library file...')
+#print(support_file_name)
+
+workbook_groups = xlrd.open_workbook(support_file_name, on_demand = True)
 worksheet_groups = workbook_groups.sheet_by_index(0)
 
 number_groups = 0
@@ -82,151 +63,30 @@ for i in range(1,number_groups+1):
 	a = list_of_peptides_per_group
 	list_of_groups.append(a)
 
+print('Reading crosslinks from stdin...')
 
-#name_file_annika= input("please copy-paste the whole name of the document with the xlsx extension as well:")
-name_file_annika = args.input_file_name
+def read_crosslinks():
+    for line in sys.stdin:
+        values = line.strip().split('\t')
+        values[2] = float(values[2])    # score
+        values[5] = int(values[5])      # position 1
+        values[6] = int(values[6])      # position 2
+        yield values
 
-import os
+unique_crosslinks = list(read_crosslinks())
+print('{} crosslinks read.'.format(len(unique_crosslinks)))
 
-name_of_the_image = os.path.splitext(name_file_annika)[0]
-
-counter=0
-
-loc = name_file_annika         #Giving the location of the file 
-
-wb = xlrd.open_workbook(loc)                    #opening & reading the excel file
-s1 = wb.sheet_by_index(0)                     #extracting the worksheet
-s1.cell_value(0,0)                            #initializing cell from the excel file mentioned through the cell position
-  
-
-ws = wb.sheet_by_index(0)
-
-
-
-
-header_name_seq_A = args.sequence_A
-header_name_seq_B = args.sequence_B
-header_name_protein_A = args.name_of_protein_A
-header_name_protein_B = args.name_of_protein_B
-header_position_AminoAcid_A = args.position_in_protein_A
-header_position_AminoAcid_B = args.position_in_protein_B
-header_score = args.best_score
-
-
-ws = wb.sheet_by_index(0)
-
-for i in range(ws.ncols):
-    if ws.cell(0,i).value == header_name_seq_A:
-        column_pos_Sequence_A = i
-    elif ws.cell(0,i).value == header_name_seq_B:
-        column_pos_Sequence_B = i
-    elif ws.cell(0,i).value == header_name_protein_A:
-        column_pos_Protein_A = i
-    elif ws.cell(0,i).value == header_name_protein_B:
-        column_pos_Protein_B = i
-    elif ws.cell(0,i).value == header_position_AminoAcid_A:
-        column_pos_Position_AA_A = i
-    elif ws.cell(0,i).value == header_position_AminoAcid_B:
-        column_pos_Position_AA_B = i
-    elif ws.cell(0,i).value == header_score:
-        column_pos_score = i
-
-character_to_delete = ["{","[","]","}","X","J"]
-unique_crosslinks = []
-list_of_scores_xlinkx = []
-
-
-for i in range(1,s1.nrows):
-	try:
-		string1 = ws.cell(i,column_pos_Sequence_A).value.replace("[","").replace("]","")
-		string2 = ws.cell(i,column_pos_Sequence_B).value.replace("[","").replace("]","")
-		protein_name_1 = ws.cell(i,column_pos_Protein_A).value
-		protein_name_2 = ws.cell(i,column_pos_Protein_B).value
-		final_position_1 = int(ws.cell(i,column_pos_Position_AA_A).value)
-		final_position_2 = int(ws.cell(i,column_pos_Position_AA_B).value)
-		score = float(ws.cell(i,column_pos_score).value)
-	except:
-		string1 = ws.cell(i,column_pos_Sequence_A).value.replace("[","").replace("]","")
-		string2 = ws.cell(i,column_pos_Sequence_B).value.replace("[","").replace("]","")
-
-		def read_until_find_undecided(example_string):
-			a = example_string.find(";")
-			b_list = list(example_string)
-			if a!=-1:
-				construct_pivot=0
-				word = ""
-				while construct_pivot<a:
-					word = word + b_list[construct_pivot]
-					construct_pivot = construct_pivot+1
-				return word
-			else:
-				return example_string
-
-		protein_name_1 = read_until_find_undecided(ws.cell(i,column_pos_Protein_A).value)
-		protein_name_2 = read_until_find_undecided(ws.cell(i,column_pos_Protein_B).value)
-		protein_name_1 = read_until_find_undecided(ws.cell(i,column_pos_Protein_A).value)
-		protein_name_2 = read_until_find_undecided(ws.cell(i,column_pos_Protein_B).value)
-		final_position_1 = int(read_until_find_undecided(str(ws.cell(i,column_pos_Position_AA_A).value).replace(".0","")))
-		final_position_2 = int(read_until_find_undecided(str(ws.cell(i,column_pos_Position_AA_B).value).replace(".0","")))
-		score = float(ws.cell(i,column_pos_score).value)
-
-	unique_crosslinks.append([string1,string2,score,protein_name_1,protein_name_2,final_position_1,final_position_2])
-	list_of_scores_xlinkx.append(score)
-
-
-
-def order_alphabetically(example_list):
-
-    example_list2= []
-
-    for i in range(len(example_list)):
-        example_list2 = example_list[i][0:2]
-
-        
-        if (example_list[i][0:2] != sorted(example_list2[0:2])):
-            
-            exchange = example_list[i][0]
-            example_list[i][0] = example_list[i][1]
-            example_list[i][1] = exchange
-
-            exchange = example_list[i][3]
-            example_list[i][3] = example_list[i][4]
-            example_list[i][4] = exchange
-
-            exchange = example_list[i][5]
-            example_list[i][5] = example_list[i][6]
-            example_list[i][6] = exchange
-
-
-            
-
-    return  example_list;
-
-unique_crosslinks = order_alphabetically(unique_crosslinks)
-
-from toolz import unique
-unique_crosslinks = list(map(list,unique(map(tuple,unique_crosslinks))))
-
-
-list_of_scores_xlinkx = list(set(list_of_scores_xlinkx))
+list_of_scores_xlinkx = list(set(map(lambda c: c[2], unique_crosslinks)))
 list_of_scores_xlinkx.sort()
 
 
-temp1 = []
-temp2 = []
-
-def fdr_diagamm(list_crosslinks):
+def fdr_diagamm():
+    print('Plotting diagram...')
     temp1 = []
     temp2 = []
 
-    import xlsxwriter
-    workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0]+"_venn_input.xlsx")
-
+    workbook = xlsxwriter.Workbook(os.path.splitext(output_file_name)[0]+"_venn_input.xlsx")
     worksheet = workbook.add_worksheet()
-
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 0
-    col = 0
 
     worksheet.write(0,0, "Results")
     worksheet.write(3,0, "total number of unique XLs:")
@@ -248,21 +108,8 @@ def fdr_diagamm(list_crosslinks):
     worksheet.set_column(0,2,40)
     worksheet.set_column(0,3,40)
 
-    
-
-    
-
-
-
-    to_be_ploted_x = []
-    to_be_ploted_y = []
-    correct_no_homo_XL = []
-    homo_XL = []
-    false_XL = []
-
-
     # open the file in the write mode
-    f = open((args.output_file_name), 'w', newline='')
+    f = open((output_file_name), 'w', newline='')
 
     #define the header
     header_csv = ["Sequence A", "Sequence B","Accession A","Accession B","Position in protein A","Position in protein B","Score crosslink","Within same group"]
@@ -274,11 +121,14 @@ def fdr_diagamm(list_crosslinks):
     list_true_XL_csv = []
     list_false_XL_csv = []
 
-
-    import matplotlib.pyplot as plt
-
+    to_be_ploted_x = []
+    to_be_ploted_y = []
+    correct_no_homo_XL = []
+    homo_XL = []
+    false_XL = []
 
     for i in range(len(list_of_scores_xlinkx)):
+        #print(i)
         all_crosslinks = 0
         correct_crosslinks = 0
         homeotypic = 0
@@ -310,7 +160,7 @@ def fdr_diagamm(list_crosslinks):
                                         homeotypic = homeotypic+1
                                 else:
                                     m = m+1
-                            
+
                         l = l+1
                     k = k+1
                 if i==0 and found == False:
@@ -318,7 +168,6 @@ def fdr_diagamm(list_crosslinks):
                                                           unique_crosslinks[j][3],unique_crosslinks[j][4],
                                                           str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"FALSE"])
 
-                
         if i == 0:
             temp11 = []
             temp22 = []
@@ -339,21 +188,14 @@ def fdr_diagamm(list_crosslinks):
             temp3=list(set(temp11)-set(temp22)) 
             for m in range(len(temp3)):
                 worksheet.write(11+m,2,str(temp3[m]))
-            
-            list_of_the_correct_crosslinks = set(temp2)
-            list_of_the_false_crosslinks = set(set(temp11)-set(temp22))
-            list_of_all_crosslinks = set(temp1)
 
-
-
-        #print(all_crosslinks-correct_crosslinks, all_crosslinks)
         to_be_ploted_x.append(list_of_scores_xlinkx[i])
         to_be_ploted_y.append((all_crosslinks-correct_crosslinks)/all_crosslinks)
         correct_no_homo_XL.append(correct_crosslinks-homeotypic)
         homo_XL.append(homeotypic)
         false_XL.append(all_crosslinks-correct_crosslinks)
-        
-    
+
+
     plt.plot(to_be_ploted_x,to_be_ploted_y)
 
     plt.title('Real FDR dependent on the score')
@@ -361,7 +203,7 @@ def fdr_diagamm(list_crosslinks):
     plt.ylabel('FDR')
     alarm_005 = False
     alarm_001 = False
-    
+
     try:
         worksheet.write(3,1,correct_no_homo_XL[0]+homo_XL[0]+false_XL[0])
         worksheet.write(4,1,correct_no_homo_XL[0]+homo_XL[0])
@@ -370,10 +212,9 @@ def fdr_diagamm(list_crosslinks):
         worksheet.write(7,1,false_XL[0])
     except:
         print("ATTENZIONE")
-        print("ATTENZIONE")
 
     bar_graph = ["real FDR"+" " +str(float("{0:.1f}".format((false_XL[0]/(correct_no_homo_XL[0]+homo_XL[0]+false_XL[0]))*100)))+"%"]
-    
+
     gold = [correct_no_homo_XL[0]]
     silver = [homo_XL[0]]
     bronze = [false_XL[0]]
@@ -398,9 +239,6 @@ def fdr_diagamm(list_crosslinks):
                     alarm_001 = True
                     worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                     bar_graph[1] = "FDR 1%"
-                    #gold.append(correct_no_homo_XL[i])
-                    #silver.append(homo_XL[i])
-                    #bronze.append(false_XL[i])
             if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
                 plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
                 plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
@@ -425,29 +263,20 @@ def fdr_diagamm(list_crosslinks):
                 score_bar.append(to_be_ploted_x[i])
 
     workbook.close()  
- #
- # #
- # #
- # #
- # #
- # #
- # #
- #    
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_FDR_at_specific_score.svg")
+ 
+    plt.savefig(os.path.splitext(output_file_name)[0]+"_FDR-at-Score.svg")
     plt.clf()
 
-    import numpy as np
-    
     b_bronze = list (np.add(gold, silver))
 
     plt.bar(bar_graph,gold,label="true",color="green",align='center')
     plt.bar(bar_graph,silver,bottom=gold, label="true homeotypic",color="lawngreen",align='center')
     plt.bar(bar_graph,bronze,bottom=b_bronze, label="false",color="red",align='center')
-    
+
     plt.ylabel("Number of crosslinks")
     plt.legend()
     plt.tick_params(
-    axis='x',          # changes apply to the x-axis
+    axis='x',
     which='both',
     bottom=False,
     top=False,
@@ -460,23 +289,17 @@ def fdr_diagamm(list_crosslinks):
     cell_table.append(score_bar)
     plt.table(cellText=cell_table, cellLoc='center', rowLabels=["true","true homeotypic","false","score cut-off"],colLabels=bar_graph ,rowLoc='left' ,colLoc='center', loc='bottom', edges='closed')
     
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_XL.svg",bbox_inches = "tight")
+    plt.savefig(os.path.splitext(output_file_name)[0]+"_Number-XL.svg",bbox_inches = "tight")
 
     plt.clf()
     plt.xlabel("Score")
     plt.ylabel("Number of crosslinks")
     plt.stackplot(list_of_scores_xlinkx,correct_no_homo_XL,homo_XL,false_XL,labels=["true","true homeotypic","false"], colors=["green","lawngreen","red"])
     plt.legend()
-    plt.savefig(os.path.splitext(args.output_file_name)[0]+"_Annika_XL_at_specific_score.svg")
-#
-#
-#
-#
-#
-##
+    plt.savefig(os.path.splitext(output_file_name)[0]+"_Score-vs-Number.svg")
 
     writer.writerows(list_true_XL_csv)
     writer.writerows(list_false_XL_csv)
     f.close()
 
-fdr_diagamm(unique_crosslinks)
+fdr_diagamm()

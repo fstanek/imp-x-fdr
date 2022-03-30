@@ -5,24 +5,21 @@ using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
-    public class PlinkFormatHandler : IFormatHandler
+    public class PlinkFormatHandler : FormatHandlerBase<CommaSeparatedReader>
     {
         private readonly Regex proteinRegex = new Regex(@"(?<acc>[^-\/]+)\((?<pos>\d+)\)", RegexOptions.Compiled);
         private readonly Regex peptideRegex = new Regex(@"(?<seq>[^(-]+)\((?<pos>\d+)\)", RegexOptions.Compiled);
 
-        public string DisplayName => "pLink";
-        public Type ReaderType => typeof(CommaSeparatedReader<CrosslinkSpectrumMatch>);
+        public override string DisplayName => "pLink";
 
-        public IEnumerable<Func<TableReader<CrosslinkSpectrumMatch>, bool>> ColumnHandlers
+        protected override void Initialize()
         {
-            get
-            {
-                yield return reader => reader.Register<string>("Proteins", ParseProteins);
-                yield return reader => reader.Register<string>("Peptide", ParsePeptides);
-            }
+            Register<string>("Proteins", ParseProteins);
+            Register<string>("Peptide", ParsePeptides);
+            Register<double>("Score", (csm, value) => csm.Score = value);
         }
 
-        private void ParseProteins(CrosslinkSpectrumMatch csm, string value)
+        private void ParseProteins(Crosslink csm, string value)
         {
             var matches = proteinRegex.Matches(value);
 
@@ -36,7 +33,7 @@ namespace XUnifier.Handlers
             }
         }
 
-        private void ParsePeptides(CrosslinkSpectrumMatch csm, string value)
+        private void ParsePeptides(Crosslink csm, string value)
         {
             var matches = peptideRegex.Matches(value);
 

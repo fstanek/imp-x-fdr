@@ -3,8 +3,7 @@ using XUnifier.Models;
 
 namespace XUnifier.Readers
 {
-    public class ExcelReader<TItem> : TableReader<TItem>
-        where TItem : new()
+    public class ExcelReader : CrosslinkReader
     {
         private ExcelPackage package;
         private ExcelWorksheet sheet;
@@ -12,6 +11,7 @@ namespace XUnifier.Readers
 
         static ExcelReader()
         {
+            // TODO move to appsettings
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
 
@@ -24,13 +24,11 @@ namespace XUnifier.Readers
         {
             package = new ExcelPackage(stream);
             sheet = package.Workbook.Worksheets.First();
-            currentRow = 0;
+            currentRow = 1;
         }
 
         protected override IEnumerable<Column> GetColumns()
         {
-            NextRow();
-
             return Enumerable.Range(1, sheet.Dimension.Columns).Select(i =>
             {
                 return new Column
@@ -43,11 +41,8 @@ namespace XUnifier.Readers
 
         protected override bool NextRow()
         {
-            if (currentRow > sheet.Dimension.Rows)
-                return false;
-
             currentRow++;
-            return true;
+            return currentRow <= sheet.Dimension.Rows;
         }
 
         protected override TValue GetValue<TValue>(int index)

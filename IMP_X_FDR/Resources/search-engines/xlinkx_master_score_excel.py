@@ -7,34 +7,11 @@ from toolz import unique
 import xlsxwriter
 import matplotlib.pyplot as plt
 import numpy as np
+from test import read_crosslinks
 
 xlrd.xlsx.ensure_elementtree_imported(False, None)
 xlrd.xlsx.Element_has_iter = True
 
-
-parser = argparse.ArgumentParser()
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument("input_file_name")
-parser.add_argument("support_file_name")
-parser.add_argument("output_file_name")
-
-parser.add_argument("-sA", "--sequence_A", type=str,
-                    help="change the the name of the header for the Sequence A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Sequence A")
-parser.add_argument("-sB", "--sequence_B", type=str,
-                    help="change the the name of the header for the Sequence A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Sequence B")
-parser.add_argument("-naprotA","--name_of_protein_A", type=str,
-                    help="change the the name of the header for the Protein-Name-A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Accession A")
-parser.add_argument("-naprotB","--name_of_protein_B", type=str,
-                    help="change the the name of the header for the Protein-Name-A. Please introduce quotation marks, especially if the name contains whitespaces!", default="Accession B")
-parser.add_argument("-bscr", "--best_score", type=str,
-                    help="change the the name of the header for the Best CSM-score of the crosslink. Please introduce quotation marks, especially if the name contains whitespaces!", default="Max. XlinkX Score")
-parser.add_argument("-pospA", "--position_in_protein_A",
-                    help="change the the name of the header for the position of the binding aminoacid in the protein A. Please introduce quotation marks, especially if the name contains whitespaces!",default="Position A")
-parser.add_argument("-pospB", "--position_in_protein_B",
-                    help="change the the name of the header for the position of the binding aminoacid in the protein B. Please introduce quotation marks, especially if the name contains whitespaces!",default="Position B")
-args = parser.parse_args()
 
 #list_crosslinks_connect_acid = ["D","E"]
 #list_crosslinks_connect_lys = ["K","Y","T","S"]
@@ -146,10 +123,8 @@ for i in range(ws.ncols):
 
 
 
-character_to_delete = ["{","[","]","}","X","J"]
 unique_crosslinks = []
 list_of_scores_xlinkx = []
-
 
 for i in range(1,s1.nrows):
 	try:
@@ -188,59 +163,17 @@ for i in range(1,s1.nrows):
 	unique_crosslinks.append([string1,string2,score,protein_name_1,protein_name_2,final_position_1,final_position_2])
 	list_of_scores_xlinkx.append(score)
 
-
-
-def order_alphabetically(example_list):
-
-    example_list2= []
-
-    for i in range(len(example_list)):
-        example_list2 = example_list[i][0:2]
-
-        
-        if (example_list[i][0:2] != sorted(example_list2[0:2])):
-            
-            exchange = example_list[i][0]
-            example_list[i][0] = example_list[i][1]
-            example_list[i][1] = exchange
-
-            exchange = example_list[i][3]
-            example_list[i][3] = example_list[i][4]
-            example_list[i][4] = exchange
-
-            exchange = example_list[i][5]
-            example_list[i][5] = example_list[i][6]
-            example_list[i][6] = exchange
-
-
-            
-
-    return  example_list;
-
-unique_crosslinks = order_alphabetically(unique_crosslinks)
-
-
 unique_crosslinks = list(map(list,unique(map(tuple,unique_crosslinks))))
-
 
 list_of_scores_xlinkx = list(set(list_of_scores_xlinkx))
 list_of_scores_xlinkx.sort()
 
-
-temp1 = []
-temp2 = []
-
-def fdr_diagamm(list_crosslinks):
+def fdr_diagamm():
     temp1 = []
     temp2 = []
 
-
     workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0] + '_venn_input.xlsx')
     worksheet = workbook.add_worksheet()
-
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 0
-    col = 0
 
     worksheet.write(0,0, "Results")
     worksheet.write(3,0, "total number of unique XLs:")
@@ -274,15 +207,12 @@ def fdr_diagamm(list_crosslinks):
 
     list_true_XL_csv = []
     list_false_XL_csv = []
-
     
     to_be_ploted_x = []
     to_be_ploted_y = []
     correct_no_homo_XL = []
     homo_XL = []
     false_XL = []
-
-
 
     for i in range(len(list_of_scores_xlinkx)):
         all_crosslinks = 0
@@ -343,14 +273,7 @@ def fdr_diagamm(list_crosslinks):
             temp3=list(set(temp11)-set(temp22)) 
             for m in range(len(temp3)):
                 worksheet.write(11+m,2,str(temp3[m]))
-            
-            list_of_the_correct_crosslinks = set(temp2)
-            list_of_the_false_crosslinks = set(set(temp11)-set(temp22))
-            list_of_all_crosslinks = set(temp1)
 
-
-
-        #print(all_crosslinks-correct_crosslinks, all_crosslinks)
         to_be_ploted_x.append(list_of_scores_xlinkx[i])
         to_be_ploted_y.append((all_crosslinks-correct_crosslinks)/all_crosslinks)
         correct_no_homo_XL.append(correct_crosslinks-homeotypic)
@@ -366,7 +289,6 @@ def fdr_diagamm(list_crosslinks):
     alarm_005 = False
     alarm_001 = False
 
-    
     try:
         worksheet.write(3,1,correct_no_homo_XL[0]+homo_XL[0]+false_XL[0])
         worksheet.write(4,1,correct_no_homo_XL[0]+homo_XL[0])
@@ -374,7 +296,6 @@ def fdr_diagamm(list_crosslinks):
         worksheet.write(6,1,correct_no_homo_XL[0])
         worksheet.write(7,1,false_XL[0])
     except:
-        print("ATTENZIONE")
         print("ATTENZIONE")
 
     bar_graph = ["real FDR"+" " +str(float("{0:.1f}".format((false_XL[0]/(correct_no_homo_XL[0]+homo_XL[0]+false_XL[0]))*100)))+"%"]
@@ -403,9 +324,6 @@ def fdr_diagamm(list_crosslinks):
                     alarm_001 = True
                     worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
                     bar_graph[1] = "FDR 1%"
-                    #gold.append(correct_no_homo_XL[i])
-                    #silver.append(homo_XL[i])
-                    #bronze.append(false_XL[i])
             if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
                 plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
                 plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
@@ -429,11 +347,10 @@ def fdr_diagamm(list_crosslinks):
                 bronze.append(false_XL[i])
                 score_bar.append(to_be_ploted_x[i])
 
-    workbook.close()  
-    
+    workbook.close()
+ 
     plt.savefig(os.path.splitext(args.output_file_name)[0]+"_XlinkX_ScorevsFDR.svg")
     plt.clf()
-
     
     b_bronze = list (np.add(gold, silver))
 
@@ -470,4 +387,4 @@ def fdr_diagamm(list_crosslinks):
     writer.writerows(list_false_XL_csv)
     f.close()
 
-fdr_diagamm(unique_crosslinks)
+fdr_diagamm()

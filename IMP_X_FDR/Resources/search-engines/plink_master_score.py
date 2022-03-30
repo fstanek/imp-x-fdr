@@ -216,7 +216,6 @@ def fdr_diagamm(list_crosslinks):
     temp1 = []
     temp2 = []
 
-
     workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0] + '_venn_input.xlsx')
     worksheet = workbook.add_worksheet()
 
@@ -329,7 +328,6 @@ def fdr_diagamm(list_crosslinks):
             temp3=list(set(temp11)-set(temp22)) 
             for m in range(len(temp3)):
                 worksheet.write(11+m,2,str(temp3[m]))
-            
 
             list_of_the_correct_crosslinks = set(temp2)
             list_of_the_false_crosslinks = set(set(temp11)-set(temp22))

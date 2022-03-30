@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace XUnifier.Readers
 {
-    public class MeroxReader : CommaSeparatedReader<CrosslinkSpectrumMatch>
+    public class MeroxReader : CommaSeparatedReader
     {
         private ZipArchive zipArchive;
         private Stream stream;

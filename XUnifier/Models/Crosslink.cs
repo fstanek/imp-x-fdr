@@ -1,17 +1,17 @@
 ﻿namespace XUnifier.Models
 {
-    public class CrosslinkSpectrumMatch : IEquatable<CrosslinkSpectrumMatch>
+    public class Crosslink : IEquatable<Crosslink>
     {
         public LinkerSiteCollection LinkerSites { get; set; }
         public double Score { get; set; }
-        public CrosslinkType CrosslinkType { get; set; }
+        public bool Intra => LinkerSites.Select(s => s.Accession).Distinct().Count() == 1;
 
-        public CrosslinkSpectrumMatch()
+        public Crosslink()
         {
             LinkerSites = new LinkerSiteCollection();
         }
 
-        public bool Equals(CrosslinkSpectrumMatch? other)
+        public bool Equals(Crosslink? other)
         {
             if (other is null)
                 return false;

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace IMP_X_FDR.Converters
 {
-    public class MaxQuantToAnnikaConverter : IFileConverter
+    public class MaxQuantToAnnikaConverter
     {
         public void Convert(string sourceFileName, string targetFileName)
         {

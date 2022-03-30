@@ -1,11 +1,14 @@
 ﻿using IMP_X_FDR.Constants;
 using IMP_X_FDR.Utils;
 using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using XUnifier;
+using XUnifier.Utils;
 
 namespace IMP_X_FDR.Controls
 {
@@ -64,23 +67,31 @@ namespace IMP_X_FDR.Controls
                 return;
             }
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 configuration.IsIdle = false;
-                var inputFileName = default(string);
+                //var inputFileName = default(string);
 
-                if(configuration.SearchEngine.FileConverter != null)
-                {
-                    inputFileName = Path.GetTempFileName();
-                    configuration.SearchEngine.FileConverter.Convert(configuration.InputFileName, inputFileName);
-                }
+                logPanel.AddMessage("Reading crosslinks from file...");
+                var items = CrosslinkReaderFactory.GetCrosslinks(configuration.InputFileName, false, out var displayName).ToArray();
+                logPanel.AddMessage($"{items.Length} crosslinks found.");
 
-                var scriptFileName = configuration.SearchEngine.ReferenceScript ?? configuration.SearchEngine.ScriptName;
-                var arguments = configuration.GetArguments(inputFileName).ToArray();
-                PythonHelper.Run(scriptFileName, arguments, logPanel.AddMessage);
+                var pythonHandler = new PythonHandler();
+                pythonHandler.AddArgument(configuration.ScriptName);
+                pythonHandler.AddArgument(configuration.LibraryFileName);
+                pythonHandler.AddArgument(configuration.OutputFileName);
 
-                if (File.Exists(inputFileName))
-                    File.Delete(inputFileName);
+                pythonHandler.OutputReceived += text => logPanel.AddMessage(text, false);
+                pythonHandler.ErrorReceived += text => logPanel.AddMessage(text, true);
+                var exitCode = pythonHandler.Run(items.Select(CrosslinkHelper.GetLine));
+
+                //var arguments = configuration.GetArguments(inputFileName).ToArray();
+                //PythonHelper.Run(configuration.ScriptName, arguments, logPanel.AddMessage);
+
+                //if (File.Exists(inputFileName))
+                //    File.Delete(inputFileName);
+
+                logPanel.AddMessage("Script finished.", false);
 
                 configuration.IsIdle = true;
             });
@@ -94,6 +105,12 @@ namespace IMP_X_FDR.Controls
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
             configuration.Reset();
+        }
+
+        private void DockPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx";
+            configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
         }
     }
 }

@@ -3,7 +3,7 @@ using XUnifier.Models;
 
 namespace XUnifier.Utils
 {
-    public class CrosslinkEqualityComparer : IEqualityComparer<LinkerSiteCollection>, IEqualityComparer<LinkerSite>
+    public class LinkerSiteCollectionEqualityComparer : IEqualityComparer<LinkerSiteCollection>, IEqualityComparer<LinkerSite>
     {
         public bool Equals(LinkerSite? site1, LinkerSite? site2)
         {

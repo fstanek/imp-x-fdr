@@ -10,6 +10,15 @@ namespace IMP_X_FDR.Utils
 {
     public static class PythonHelper
     {
+        // TODO if 'python' not found, try add to PATH
+        /*
+         * var name = "PATH";
+         * var scope = EnvironmentVariableTarget.Machine; // or User
+         * var oldValue = Environment.GetEnvironmentVariable(name, scope);
+         * var newValue  = oldValue + @";C:\Program Files\MySQL\MySQL Server 5.1\bin\\";
+         * Environment.SetEnvironmentVariable(name, newValue, scope);
+         */
+
         private const string RequirementsPath = "Resources/requirements.txt";
 
         private static string pythonPath;
