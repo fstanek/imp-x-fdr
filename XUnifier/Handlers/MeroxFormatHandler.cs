@@ -1,4 +1,5 @@
-﻿using XUnifier.Readers;
+﻿using XUnifier.Models;
+using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
@@ -21,23 +22,23 @@ namespace XUnifier.Handlers
         protected override void Initialize()
         {
             Register<double>(Score, (csm, value) => csm.Score = value);
-            RegisterColumns(0, Accession1, Sequence1, ProteinLink1, PeptideLink1);
-            RegisterColumns(1, Accession2, Sequence2, ProteinLink2, PeptideLink2);
+            RegisterColumns(c => c.Site1, Accession1, Sequence1, ProteinLink1, PeptideLink1);
+            RegisterColumns(c => c.Site2, Accession2, Sequence2, ProteinLink2, PeptideLink2);
         }
 
-        private void RegisterColumns(int index, int accession, int sequence, int proteinLink, int peptideLink)
+        private void RegisterColumns(Func<Crosslink, LinkerSite> selector, int accession, int sequence, int proteinLink, int peptideLink)
         {
             Register<string>(accession,
-                (csm, value) => csm.LinkerSites[index].Accession = value);
+                (csm, value) => selector(csm).Accession = value);
 
             Register<string>(sequence,
-                (csm, value) => csm.LinkerSites[index].Sequence = value.Trim('[', ']'));
+                (csm, value) => selector(csm).Sequence = value.Trim('[', ']'));
 
             Register<int>(proteinLink,
-                (csm, value) => csm.LinkerSites[index].ProteinLink = value);
+                (csm, value) => selector(csm).ProteinLink = value);
 
             Register<string>(peptideLink,
-                (csm, value) => csm.LinkerSites[index].PeptideLink = int.Parse(value.Substring(1)));
+                (csm, value) => selector(csm).PeptideLink = int.Parse(value.Substring(1)));
         }
     }
 }

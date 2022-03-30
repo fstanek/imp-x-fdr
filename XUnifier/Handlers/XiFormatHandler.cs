@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using XUnifier.Models;
 using XUnifier.Readers;
 
 namespace XUnifier.Handlers
@@ -11,26 +12,24 @@ namespace XUnifier.Handlers
 
         protected override void Initialize()
         {
-            RegisterHandlers(0);
-            RegisterHandlers(1);
+            RegisterHandlers(c => c.Site1, 1);
+            RegisterHandlers(c => c.Site2, 2);
             Register<double>("Score", (csm, value) => csm.Score = value);
         }
 
-        private void RegisterHandlers(int index)
+        private void RegisterHandlers(Func<Crosslink, LinkerSite> selector, int number)
         {
-            var number = index + 1;
-
             Register<string>($"Protein{number}",
-                (csm, value) => csm.LinkerSites[index].Accession = value);
+                (csm, value) => selector(csm).Accession = value);
 
             Register<string>($"PepSeq{number}",
-                (csm, value) => csm.LinkerSites[index].Sequence = sequenceParser.Replace(value, string.Empty));
+                (csm, value) => selector(csm).Sequence = sequenceParser.Replace(value, string.Empty));
 
             Register<int>($"ProteinLinkPos{number}",
-                (csm, value) => csm.LinkerSites[index].ProteinLink = value);
+                (csm, value) => selector(csm).ProteinLink = value);
 
             Register<int>($"LinkPos{number}",
-                (csm, value) => csm.LinkerSites[index].PeptideLink = value);
+                (csm, value) => selector(csm).PeptideLink = value);
         }
     }
 }

@@ -33,6 +33,7 @@ namespace XUnifier.Utils
             process.StartInfo = new ProcessStartInfo
             {
                 FileName = "python",
+                CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,

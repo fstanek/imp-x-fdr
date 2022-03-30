@@ -9,6 +9,7 @@ namespace XUnifier.Readers
 
         private Column[] columns;
         private List<Action<Crosslink>> actions;
+        private List<Func<bool>> filters;
 
         public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
 
@@ -18,6 +19,7 @@ namespace XUnifier.Readers
 
             columns = GetColumns().ToArray();
             actions = new List<Action<Crosslink>>();
+            filters = new List<Func<bool>>();
         }
 
         public bool HasColumn(string title)
@@ -43,17 +45,45 @@ namespace XUnifier.Readers
             });
         }
 
+        public void Filter<TValue>(string title, Func<TValue, bool> handler)
+        {
+            var column = columns.FirstOrDefault(h => h.Title == title);
+
+            if (column is not null)
+                Filter(column.Index, handler);
+        }
+
+        public void Filter<TValue>(int index, Func<TValue, bool> handler)
+        {
+            filters.Add(() =>
+            {
+                var value = GetValue<TValue>(index);
+                return handler(value);
+            });
+        }
+
         public IEnumerable<Crosslink> Read()
         {
             while (NextRow())
             {
-                var item = new Crosslink();
+                if (FilterItem())
+                {
+                    var item = new Crosslink();
 
-                foreach (var action in actions)
-                    action(item);
+                    foreach (var action in actions)
+                        action(item);
 
-                yield return item;
+                    yield return item;
+                }
             }
+        }
+
+        private bool FilterItem()
+        {
+            if (!filters.Any())
+                return true;
+
+            return filters.Any(f => f());
         }
 
         protected abstract void Initialize(Stream stream);

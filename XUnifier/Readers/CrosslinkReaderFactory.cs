@@ -2,13 +2,12 @@
 using XUnifier.Handlers;
 using XUnifier.Models;
 using XUnifier.Readers;
-using XUnifier.Utils;
 
 namespace XUnifier
 {
     public static class CrosslinkReaderFactory
     {
-        public static IEnumerable<Crosslink> GetCrosslinks(string fileName, bool groupCSMs, out string displayName)
+        public static IEnumerable<Crosslink> GetCrosslinks(string fileName, out string displayName)
         {
             displayName = null;
 
@@ -25,18 +24,12 @@ namespace XUnifier
 
             var items = reader.Read().ToArray();
 
-            if (groupCSMs)
-            {
-                var comparer = new LinkerSiteCollectionEqualityComparer();
-                items = items.GroupBy(i => i.LinkerSites, comparer).Select(g => new Crosslink
-                {
-                    LinkerSites = g.Key,
-                    Score = g.Max(i => i.Score)
-                }).ToArray();
-            }
-
             foreach (var item in items)
-                item.LinkerSites = new LinkerSiteCollection(item.LinkerSites.OrderBy(l => l.Sequence));
+            {
+                var orderedSites = new[] { item.Site1, item.Site2 }.OrderBy(s => s.Sequence).ToArray();
+                item.Site1 = orderedSites.First();
+                item.Site2 = orderedSites.Last();
+            }
 
             return items;
         }
@@ -66,6 +59,7 @@ namespace XUnifier
             // TODO read from assembly?
 
             yield return new AnnikaFormatHandler();
+            yield return new MaxLynxFormatHandler();
             yield return new PlinkFormatHandler();
             yield return new XiFormatHandler();
             yield return new XLinkXFormatHandler();

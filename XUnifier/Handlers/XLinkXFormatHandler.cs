@@ -1,4 +1,5 @@
-﻿using XUnifier.Readers;
+﻿using XUnifier.Models;
+using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
@@ -8,24 +9,24 @@ namespace XUnifier.Handlers
 
         protected override void Initialize()
         {
-            RegisterColumns("A", 0);
-            RegisterColumns("B", 1);
+            RegisterColumns(c => c.Site1, "A");
+            RegisterColumns(c => c.Site2, "B");
             Register<double>("XlinkX Score", (csm, value) => csm.Score = value);
         }
 
-        private void RegisterColumns(string discriminator, int index)
+        private void RegisterColumns(Func<Crosslink, LinkerSite> selector, string discriminator)
         {
             Register<string>($"Protein Accession {discriminator}",
-               (csm, value) => csm.LinkerSites[index].Accession = value);
+               (csm, value) => selector(csm).Accession = value);
 
             Register<string>($"Sequence {discriminator}",
-                (csm, value) => csm.LinkerSites[index].Sequence = value);
+                (csm, value) => selector(csm).Sequence = value);
 
             Register<int>($"Leading Protein Position {discriminator}",
-                (csm, value) => csm.LinkerSites[index].ProteinLink = value);
+                (csm, value) => selector(csm).ProteinLink = value);
 
             Register<int>($"Crosslinker Position {discriminator}",
-                (csm, value) => csm.LinkerSites[index].PeptideLink = value);
+                (csm, value) => selector(csm).PeptideLink = value);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace XUnifier.Handlers
         private readonly Type readerType;
         private readonly List<string> names;
         private readonly List<Action<CrosslinkReader>> actions;
+        private readonly List<Action<CrosslinkReader>> filters;
 
         public abstract string DisplayName { get; }
 
@@ -32,6 +33,16 @@ namespace XUnifier.Handlers
         {
             names.Add(name);
             actions.Add(reader => reader.Register(name, handler));
+        }
+
+        protected void Filter<TValue>(int index, Func<TValue, bool> handler)
+        {
+            filters.Add(reader => reader.Filter(index, handler));
+        }
+
+        protected void Filter<TValue>(string name, Func<TValue, bool> handler)
+        {
+            filters.Add(reader => reader.Filter(name, handler));
         }
 
         public bool CanRead(CrosslinkReader reader)

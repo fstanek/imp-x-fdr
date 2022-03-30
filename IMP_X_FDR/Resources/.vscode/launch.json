@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python: Current File",
             "type": "python",
@@ -23,6 +24,19 @@
                 //"C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_standard_pepength7_shrinked.xlsx",
                 "C:\\Users\\stanek\\source\\repos\\imp-x-fdr\\IMP_X_FDR\\Resources\\libraries\\main_library.xlsx",
                 "C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_standard_pepength7_scriptoutput.csv"
+            ]
+        },
+        {
+            "name": "plink",
+            "type": "python",
+            "request": "launch",
+            "program": "search-engines/plink_master_score.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\pLink\\21052021_DHSO_5adds_rep1_plink.csv",
+                "C:\\Users\\stanek\\source\\repos\\imp-x-fdr\\IMP_X_FDR\\Resources\\libraries\\main_library.xlsx",
+                "C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\pLink\\21052021_DHSO_5adds_rep1_plink_SCRIPTOUT.csv",
             ]
         }
     ]

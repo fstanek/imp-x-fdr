@@ -23,28 +23,28 @@ namespace XUnifier.Handlers
         {
             var matches = proteinRegex.Matches(value);
 
-            for (int i = 0; i < matches.Count; i++)
+            void ParseProteinSite(LinkerSite site, Match match)
             {
-                var match = matches[i];
-                var site = csm.LinkerSites[i];
-
                 site.Accession = match.GetString("acc");
                 site.ProteinLink = match.GetInt32("pos");
             }
+
+            ParseProteinSite(csm.Site1, matches.ElementAt(0));
+            ParseProteinSite(csm.Site2, matches.ElementAt(1));
         }
 
         private void ParsePeptides(Crosslink csm, string value)
         {
             var matches = peptideRegex.Matches(value);
 
-            for (int i = 0; i < matches.Count; i++)
+            void ParsePeptideSite(LinkerSite site, Match match)
             {
-                var match = matches[i];
-                var site = csm.LinkerSites[i];
-
                 site.Sequence = match.GetString("seq");
                 site.PeptideLink = match.GetInt32("pos");
             }
+
+            ParsePeptideSite(csm.Site1, matches.ElementAt(0));
+            ParsePeptideSite(csm.Site2, matches.ElementAt(1));
         }
     }
 }

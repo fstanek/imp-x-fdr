@@ -10,13 +10,13 @@ namespace XUnifier.Utils
         public static string GetLine(Crosslink csm)
         {
             return string.Join(Separator,
-                csm.LinkerSites[0].Sequence,
-                csm.LinkerSites[1].Sequence,
+                csm.Site1.Sequence,
+                csm.Site2.Sequence,
                 csm.Score.ToString(CultureInfo.InvariantCulture),
-                csm.LinkerSites[0].Accession,
-                csm.LinkerSites[1].Accession,
-                csm.LinkerSites[0].ProteinLink,
-                csm.LinkerSites[1].ProteinLink);
+                csm.Site1.Accession,
+                csm.Site2.Accession,
+                csm.Site1.ProteinLink,
+                csm.Site2.ProteinLink);
         }
     }
 }
