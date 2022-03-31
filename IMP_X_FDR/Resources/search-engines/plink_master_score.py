@@ -57,7 +57,7 @@ print(len(peptides_per_group))
 # in list_of_groups there will be all peptides groups with all their members stored 
 list_of_groups = []
 # will be added to the list_of_groups and contains temporary the members of one group at the time
-list_of_peptides_per_group = []
+#list_of_peptides_per_group = []
 
 
 # all peptide sequences present in the excel document are read one by oneand the added to the list of groups

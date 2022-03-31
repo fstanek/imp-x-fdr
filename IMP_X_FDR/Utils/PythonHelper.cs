@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using XUnifier.Utils;
 
 namespace IMP_X_FDR.Utils
 {
@@ -28,12 +29,12 @@ namespace IMP_X_FDR.Utils
         {
             pythonPath = new[]
             {
-                "python.exe",
+                //"python",
                 FromRegistryKey(Registry.CurrentUser),
                 FromRegistryKey(Registry.LocalMachine)
             }.FirstOrDefault(ValidatePythonPath);
 
-            if(IsPythonInstalled)
+            if (IsPythonInstalled)
                 TryInstallPackages();
         }
 
@@ -43,18 +44,19 @@ namespace IMP_X_FDR.Utils
             const string Key32 = @"Software\Python\PythonCore";
 
             var pythonCore = registryKey.OpenSubKey(Key64) ?? registryKey.OpenSubKey(Key32);
-            if (pythonCore != null)
-            {
-                var version = pythonCore.GetSubKeyNames().LastOrDefault();
+            if (pythonCore is null)
+                return null;
 
-                if (version != null)
-                {
-                    var installPath = pythonCore?.OpenSubKey($@"{version}\InstallPath");
-                    return installPath?.GetValue("ExecutablePath") as string;
-                }
-            }
+            var version = pythonCore.GetSubKeyNames().OrderBy(Version.Parse).LastOrDefault();
+            if (version is null)
+                return null;
 
-            return null;
+            var installPath = pythonCore?.OpenSubKey($@"{version}\InstallPath");
+            var fileName = installPath?.GetValue("ExecutablePath") as string;
+
+            return File.Exists(fileName)
+                ? fileName
+                : null;
         }
 
         private static bool ValidatePythonPath(string path)
@@ -64,7 +66,7 @@ namespace IMP_X_FDR.Utils
 
             try
             {
-                return Run(path, "--version", 1000);
+                return Run(path, "--version");
             }
             catch
             {
@@ -72,21 +74,22 @@ namespace IMP_X_FDR.Utils
             }
         }
 
-        private static bool Run(string fileName, string arguments, int? milliseconds = default)
+        private static bool Run(string fileName, string arguments)
         {
             using var process = new Process();
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
-            process.StartInfo.UseShellExecute = true;
-//#if !DEBUG
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.UseShellExecute = false;
+            //#if !DEBUG
             process.StartInfo.CreateNoWindow = true;
-//#endif
+            //#endif
             process.Start();
+            process.WaitForExit();
 
-            if (milliseconds.HasValue)
-                process.WaitForExit(milliseconds.Value);
-            else
-                process.WaitForExit();
+            var output = process.StandardOutput.ReadToEnd();
+            var error = process.StandardError.ReadToEnd();
 
             return process.ExitCode == 0;
         }
@@ -132,6 +135,11 @@ namespace IMP_X_FDR.Utils
         {
             if (dataReceivedEventArgs.Data != null)
                 messageHandler?.Invoke(dataReceivedEventArgs.Data, isError);
+        }
+
+        public static PythonHandler CreateHandler()
+        {
+            return new PythonHandler(pythonPath);
         }
     }
 }

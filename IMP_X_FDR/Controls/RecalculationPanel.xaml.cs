@@ -92,7 +92,7 @@ namespace IMP_X_FDR.Controls
                         logPanel.AddMessage($"Grouped to {items.Length} unique crosslinks.");
                     }
 
-                    var pythonHandler = new PythonHandler();
+                    using var pythonHandler = PythonHelper.CreateHandler();
                     pythonHandler.AddArgument(configuration.ScriptName);
                     pythonHandler.AddArgument(configuration.LibraryFileName);
                     pythonHandler.AddArgument(configuration.OutputFileName);

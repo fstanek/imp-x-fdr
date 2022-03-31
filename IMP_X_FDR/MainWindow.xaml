@@ -9,7 +9,7 @@
 
     <TabControl SelectedIndex="0">
         <TabItem Header="FDR recalculation">
-            <controls:RecalculationPanel></controls:RecalculationPanel>
+            <controls:RecalculationPanel x:Name="recalculationPanel"></controls:RecalculationPanel>
         </TabItem>
         <TabItem Header="Physicochemical cross-link properties">
             <controls:AnnikaPanel></controls:AnnikaPanel>

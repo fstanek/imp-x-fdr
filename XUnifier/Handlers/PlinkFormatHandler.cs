@@ -16,7 +16,7 @@ namespace XUnifier.Handlers
         {
             Register<string>("Proteins", ParseProteins);
             Register<string>("Peptide", ParsePeptides);
-            Register<double>("Score", (csm, value) => csm.Score = value);
+            Register<double>("Score", (csm, value) => csm.Score = -Math.Log10(value));
         }
 
         private void ParseProteins(Crosslink csm, string value)

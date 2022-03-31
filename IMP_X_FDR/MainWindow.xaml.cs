@@ -1,5 +1,4 @@
 ﻿using IMP_X_FDR.Utils;
-using System.Diagnostics;
 using System.Windows;
 
 namespace IMP_X_FDR
@@ -16,18 +15,6 @@ namespace IMP_X_FDR
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = "python";
-                process.StartInfo.Arguments = "-u --version";
-                process.StartInfo.RedirectStandardOutput = true;
-
-                process.Start();
-                process.WaitForExit();
-
-                var version = process.StandardOutput.ReadLine();
-            }
-
             PythonHelper.Initialize();
 
             if (!PythonHelper.IsPythonInstalled)

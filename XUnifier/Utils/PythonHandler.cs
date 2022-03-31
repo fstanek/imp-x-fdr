@@ -9,9 +9,9 @@ namespace XUnifier.Utils
         public event Action<string> OutputReceived;
         public event Action<string> ErrorReceived;
 
-        public PythonHandler()
+        public PythonHandler(string fileName)
         {
-            process = CreateProcess();
+            process = CreateProcess(fileName);
 
             process.OutputDataReceived += (s, e) =>
             {
@@ -26,13 +26,13 @@ namespace XUnifier.Utils
             };
         }
 
-        public static Process CreateProcess()
+        public static Process CreateProcess(string fileName)
         {
             var process = new Process();
 
             process.StartInfo = new ProcessStartInfo
             {
-                FileName = "python",
+                FileName = fileName,
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardInput = true,

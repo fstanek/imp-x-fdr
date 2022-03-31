@@ -63,7 +63,7 @@ for i in range(1,number_groups+1):
 	a = list_of_peptides_per_group
 	list_of_groups.append(a)
 
-print('Reading crosslinks from stdin...')
+print('Transferring crosslinks to script...')
 
 def read_crosslinks():
     for line in sys.stdin:
@@ -74,11 +74,13 @@ def read_crosslinks():
         yield values
 
 unique_crosslinks = list(read_crosslinks())
-print('{} crosslinks read.'.format(len(unique_crosslinks)))
+print('{} crosslinks transferred.'.format(len(unique_crosslinks)))
 
 list_of_scores_xlinkx = list(set(map(lambda c: c[2], unique_crosslinks)))
 list_of_scores_xlinkx.sort()
 
+temp1 = []
+temp2 = []
 
 def fdr_diagamm():
     print('Plotting diagram...')
@@ -128,7 +130,6 @@ def fdr_diagamm():
     false_XL = []
 
     for i in range(len(list_of_scores_xlinkx)):
-        #print(i)
         all_crosslinks = 0
         correct_crosslinks = 0
         homeotypic = 0
