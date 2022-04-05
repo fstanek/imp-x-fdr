@@ -2,7 +2,12 @@
 
 ## Features
 
-This software provides an easy to use and automated way for calculation of the real false discovery rate (FDR) of crosslink search results obtained from any peptide-library system. It is a valuable tool for testing novel crosslinkers, to compare acquisition strategies or to benchmark crosslink search algorithms.
+This software provides an easy to use and automated way for validation of the false discovery rate (FDR) of crosslink search results from the search enignes MeroX, Annika, XlinkX, pLink 2, MaxLynx and xiSearch. Therby data optined from a synthetic peptide library system is used where every correct crosslink is known since the crosslink reaciton was performed on peptides in seperate groups.
+The following formula describes the basic validation step performed by IMP-X-FDR to calculate the an experimentally validated FDR:
+FDR_(experimentally validated)=(#target XLs across peptides not within same XL group)/(#target XLs total)
+
+IMP-X-FDR can be used for other than the above mentioned serach engines as well, if the used crosslink input (csv-)list is adopted to one of the formats that corresponds to one of these supported search engines.
+This makes IMP-X-FDR a valuable tool for testing novel crosslinkers, to compare acquisition strategies or to benchmark crosslink search algorithms.
 
 Additional functionalities are the comparison of crosslink IDs found from different replicates or across different search engines using Venn diagrams as well as to investigate intrinsic properties (mass, pI value, amino-acid sequences analyses, ...) of the crosslinks dependent on retention time. The tool thereby allows a comparison of the physicochemical properties of identified crosslinks vs those theoretically formed within the peptide library used.
 
