@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 support_file_name = sys.argv[1]
 output_file_name = sys.argv[2]
+is_grouped = len(sys.argv) > 3 and sys.argv[3] == 'true'
 
 ### BEGIN LIBRARY -------------------------------------------------------------------
 # open the sheetspreadfile and the respective sheet
@@ -82,7 +83,7 @@ list_of_scores_xlinkx.sort()
 temp1 = []
 temp2 = []
 
-def fdr_diagamm():
+def fdr_diagamm(is_grouped):
     print('Plotting diagram...')
     temp1 = []
     temp2 = []
@@ -274,7 +275,11 @@ def fdr_diagamm():
     plt.bar(bar_graph,silver,bottom=gold, label="true homeotypic",color="lawngreen",align='center')
     plt.bar(bar_graph,bronze,bottom=b_bronze, label="false",color="red",align='center')
 
-    plt.ylabel("Number of crosslinks")
+    if is_grouped:
+        plt.ylabel("Number of crosslinks")
+    else:
+        plt.ylabel("Number of CSMs")
+
     plt.legend()
     plt.tick_params(
     axis='x',
@@ -303,4 +308,4 @@ def fdr_diagamm():
     writer.writerows(list_false_XL_csv)
     f.close()
 
-fdr_diagamm()
+fdr_diagamm(is_grouped)

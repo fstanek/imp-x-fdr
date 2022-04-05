@@ -9,6 +9,7 @@ namespace XUnifier.Handlers
         private readonly Regex sequenceParser = new Regex("[^A-Z]*", RegexOptions.Compiled);
 
         public override string DisplayName => "Xi";
+        public override bool IsGrouped => false;
 
         protected override void Initialize()
         {

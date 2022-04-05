@@ -3,14 +3,14 @@ using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
-    public class AnnikaFormatHandler : FormatHandlerBase<ExcelReader>
+    internal class AnnikaXLFormatHandler : FormatHandlerBase<ExcelReader>
     {
-        public override string DisplayName => "Annika CSMs";
-        public override bool IsGrouped => false;
+        public override string DisplayName => "Annika crosslinks";
+        public override bool IsGrouped => true;
 
         protected override void Initialize()
         {
-            Register<double>("Combined Score", (csm, value) => csm.Score = value);
+            Register<double>("Best CSM Score", (csm, value) => csm.Score = value);
             RegisterHandlers(c => c.Site1, "A");
             RegisterHandlers(c => c.Site2, "B");
         }
@@ -23,10 +23,10 @@ namespace XUnifier.Handlers
             Register<string>($"Sequence {discriminator}",
                 (csm, value) => selector(csm).Sequence = value);
 
-            Register<int>($"{discriminator} in protein",
+            Register<int>($"In protein {discriminator}",
                 (csm, value) => selector(csm).ProteinLink = value);
 
-            Register<int>($"Crosslinker Position {discriminator}",
+            Register<int>($"Position {discriminator}",
                 (csm, value) => selector(csm).PeptideLink = value);
         }
     }

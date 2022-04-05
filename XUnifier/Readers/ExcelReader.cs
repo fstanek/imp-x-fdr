@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml;
+using XUnifier.Handlers;
 using XUnifier.Models;
 
 namespace XUnifier.Readers
@@ -37,6 +38,13 @@ namespace XUnifier.Readers
                     Title = sheet.GetValue<string>(1, i)
                 };
             });
+        }
+
+        protected override IEnumerable<IFormatHandler> GetHandlers()
+        {
+            yield return new AnnikaFormatHandler();
+            yield return new AnnikaXLFormatHandler();
+            yield return new XLinkXFormatHandler();
         }
 
         protected override bool NextRow()

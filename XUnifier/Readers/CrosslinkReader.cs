@@ -1,16 +1,18 @@
 ﻿using System.Globalization;
+using XUnifier.Handlers;
 using XUnifier.Models;
 
 namespace XUnifier.Readers
 {
     public abstract class CrosslinkReader : IDisposable
     {
-        // TODO consider filtering (e.g. Decoys)
+        // TODO define handlers here, e.g. abstract GetHandlers
 
         private Column[] columns;
         private List<Action<Crosslink>> actions;
         private List<Func<bool>> filters;
 
+        public IFormatHandler FormatHandler { get; private set; }
         public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
 
         public CrosslinkReader(Stream stream)
@@ -20,6 +22,13 @@ namespace XUnifier.Readers
             columns = GetColumns().ToArray();
             actions = new List<Action<Crosslink>>();
             filters = new List<Func<bool>>();
+
+            FormatHandler = GetHandlers().FirstOrDefault(h => h.CanRead(this));
+
+            if (FormatHandler is null)
+                throw new Exception("Unknown file format.");
+
+            FormatHandler.Apply(this);
         }
 
         public bool HasColumn(string title)
@@ -88,6 +97,7 @@ namespace XUnifier.Readers
 
         protected abstract void Initialize(Stream stream);
         protected abstract IEnumerable<Column> GetColumns();
+        protected abstract IEnumerable<IFormatHandler> GetHandlers();
         protected abstract bool NextRow();
         protected abstract TValue GetValue<TValue>(int index);
 

@@ -12,6 +12,7 @@ namespace XUnifier.Handlers
         private readonly List<Action<CrosslinkReader>> filters;
 
         public abstract string DisplayName { get; }
+        public abstract bool IsGrouped { get; }
 
         public FormatHandlerBase()
         {

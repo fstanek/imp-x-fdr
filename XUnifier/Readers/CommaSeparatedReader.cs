@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using XUnifier.Handlers;
 using XUnifier.Models;
 using XUnifier.Utils;
 
@@ -35,6 +36,13 @@ namespace XUnifier.Readers
                     Title = currentRow[i]
                 };
             }
+        }
+
+        protected override IEnumerable<IFormatHandler> GetHandlers()
+        {
+            yield return new MaxLynxFormatHandler();
+            yield return new PlinkFormatHandler();
+            yield return new XiFormatHandler();
         }
 
         protected override bool NextRow()

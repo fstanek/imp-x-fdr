@@ -5,6 +5,7 @@ namespace XUnifier.Handlers
     public class MaxLynxFormatHandler : FormatHandlerBase<CommaSeparatedReader>
     {
         public override string DisplayName => "MaxLynX";
+        public override bool IsGrouped => false;
 
         protected override void Initialize()
         {

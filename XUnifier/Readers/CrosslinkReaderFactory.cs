@@ -1,37 +1,40 @@
 ﻿using XUnifier.Constants;
-using XUnifier.Handlers;
 using XUnifier.Models;
 using XUnifier.Readers;
+using XUnifier.Utils;
 
 namespace XUnifier
 {
     public static class CrosslinkReaderFactory
     {
-        public static IEnumerable<Crosslink> GetCrosslinks(string fileName, out string displayName)
+        public static IEnumerable<Crosslink> GetCrosslinks(string fileName, out bool isGrouped)
         {
-            displayName = null;
-
             var reader = GetReader(fileName);
-            if (reader is null)
-                return null;
+            isGrouped = reader.FormatHandler.IsGrouped;
+            return reader?.Read();
+        }
 
-            var handler = GetFormatHandlers().FirstOrDefault(h => h.CanRead(reader));
-            if (handler is null)
-                return null;
+        public static IEnumerable<Crosslink> Group(IEnumerable<Crosslink> crosslinks)
+        {
+            var comparer = new LinkerSiteCollectionEqualityComparer();
 
-            displayName = handler.DisplayName;
-            handler.Apply(reader);
-
-            var items = reader.Read().ToArray();
-
-            foreach (var item in items)
+            return crosslinks.GroupBy(i => (i.Site1, i.Site2)).Select(g => new Crosslink
             {
-                var orderedSites = new[] { item.Site1, item.Site2 }.OrderBy(s => s.Sequence).ToArray();
-                item.Site1 = orderedSites.First();
-                item.Site2 = orderedSites.Last();
-            }
+                Site1 = g.Key.Site1,
+                Site2 = g.Key.Site2,
+                Score = g.Max(i => i.Score)
+            });
+        }
 
-            return items;
+        public static IEnumerable<Crosslink> Order(IEnumerable<Crosslink> crosslinks)
+        {
+            foreach (var crosslink in crosslinks)
+            {
+                var orderedSites = new[] { crosslink.Site1, crosslink.Site2 }.OrderBy(s => s.Sequence).ToArray();
+                crosslink.Site1 = orderedSites.First();
+                crosslink.Site2 = orderedSites.Last();
+                yield return crosslink;
+            }
         }
 
         private static CrosslinkReader GetReader(string fileName)
@@ -53,19 +56,6 @@ namespace XUnifier
                 default:
                     return null;
             }
-        }
-
-        private static IEnumerable<IFormatHandler> GetFormatHandlers()
-        {
-            // TODO read from assembly?
-
-            yield return new AnnikaFormatHandler();
-            yield return new MaxLynxFormatHandler();
-            yield return new PlinkFormatHandler();
-            yield return new XiFormatHandler();
-            yield return new XLinkXFormatHandler();
-
-            yield return new MeroxFormatHandler();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.IO.Compression;
+using XUnifier.Handlers;
 using XUnifier.Models;
-using System.Globalization;
 
 namespace XUnifier.Readers
 {
@@ -11,7 +11,7 @@ namespace XUnifier.Readers
 
         public MeroxReader(Stream stream) : base(stream)
         {
-            CultureInfo = CultureInfo.GetCultureInfo("de-AT");
+            //CultureInfo = CultureInfo.GetCultureInfo("de-AT");
         }
 
         protected override void Initialize(Stream stream)
@@ -26,6 +26,11 @@ namespace XUnifier.Readers
         protected override IEnumerable<Column> GetColumns()
         {
             yield break;
+        }
+
+        protected override IEnumerable<IFormatHandler> GetHandlers()
+        {
+            yield return new MeroxFormatHandler();
         }
 
         public override void Dispose()

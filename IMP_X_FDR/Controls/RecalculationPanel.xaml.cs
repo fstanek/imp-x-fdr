@@ -2,6 +2,7 @@
 using IMP_X_FDR.Utils;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,56 +69,61 @@ namespace IMP_X_FDR.Controls
                 return;
             }
 
+#if !DEBUG
             Task.Run(async () =>
             {
                 try
                 {
-                    configuration.IsIdle = false;
-                    //var inputFileName = default(string);
+#endif
+            configuration.IsIdle = false;
+                //var inputFileName = default(string);
 
-                    logPanel.AddMessage("Reading crosslinks from file...");
-                    var items = CrosslinkReaderFactory.GetCrosslinks(configuration.InputFileName, out var displayName).ToArray();
-                    logPanel.AddMessage($"{items.Length} crosslinks found.");
+                logPanel.AddMessage("Reading crosslinks from file...");
+                var items = CrosslinkReaderFactory.GetCrosslinks(configuration.InputFileName, out var isGrouped).ToArray();
+                logPanel.AddMessage($"{items.Length} crosslinks found.");
 
-                    if (configuration.GroupCSMs)
-                    {
-                        var comparer = new LinkerSiteCollectionEqualityComparer();
-                        items = items.GroupBy(i => (i.Site1, i.Site2)).Select(g => new Crosslink
-                        {
-                            Site1 = g.Key.Site1,
-                            Site2 = g.Key.Site2,
-                            Score = g.Max(i => i.Score)
-                        }).ToArray();
-
-                        logPanel.AddMessage($"Grouped to {items.Length} unique crosslinks.");
-                    }
-
-                    using var pythonHandler = PythonHelper.CreateHandler();
-                    pythonHandler.AddArgument(configuration.ScriptName);
-                    pythonHandler.AddArgument(configuration.LibraryFileName);
-                    pythonHandler.AddArgument(configuration.OutputFileName);
-
-                    pythonHandler.OutputReceived += text => logPanel.AddMessage(text, false);
-                    pythonHandler.ErrorReceived += text => logPanel.AddMessage(text, true);
-                    var exitCode = pythonHandler.Run(items.Select(CrosslinkHelper.GetLine));
-
-                    //var arguments = configuration.GetArguments(inputFileName).ToArray();
-                    //PythonHelper.Run(configuration.ScriptName, arguments, logPanel.AddMessage);
-
-                    //if (File.Exists(inputFileName))
-                    //    File.Delete(inputFileName);
-
-                    logPanel.AddMessage("Script finished.", false);
+                if (!isGrouped && configuration.GroupCSMs)
+                {
+                    items = CrosslinkReaderFactory.Group(items).ToArray();
+                    logPanel.AddMessage($"Grouped to {items.Length} unique crosslinks.");
                 }
+
+                items = CrosslinkReaderFactory.Order(items).ToArray();
+
+                using var pythonHandler = PythonHelper.CreateHandler();
+                pythonHandler.AddArgument(configuration.ScriptName);
+                pythonHandler.AddArgument(configuration.LibraryFileName);
+                pythonHandler.AddArgument(configuration.OutputFileName);
+
+                pythonHandler.AddArgument((isGrouped || configuration.GroupCSMs).ToString());
+
+                pythonHandler.OutputReceived += text => logPanel.AddMessage(text, false);
+                pythonHandler.ErrorReceived += text => logPanel.AddMessage(text, true);
+#if DEBUG
+                pythonHandler.OutputReceived += text => Debug.WriteLine(text);
+                pythonHandler.ErrorReceived += text => Debug.WriteLine($"ERROR: {text}");
+#endif
+            var exitCode = pythonHandler.Run(items.Select(CrosslinkHelper.GetLine));
+
+                //var arguments = configuration.GetArguments(inputFileName).ToArray();
+                //PythonHelper.Run(configuration.ScriptName, arguments, logPanel.AddMessage);
+
+                //if (File.Exists(inputFileName))
+                //    File.Delete(inputFileName);
+
+                logPanel.AddMessage("Script finished.", false);
+#if !DEBUG
+            }
                 catch (Exception e)
                 {
                     logPanel.AddMessage(e.ToString(), true);
                 }
-                finally
-                {
-                    configuration.IsIdle = true;
-                }
+
+                configuration.IsIdle = true;
             });
+#else
+            configuration.IsIdle = true;
+#endif
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
@@ -132,8 +138,13 @@ namespace IMP_X_FDR.Controls
 
         private void DockPanel_Loaded(object sender, RoutedEventArgs e)
         {
-            configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx";
+#if DEBUG
+            //configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx";
+            //configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
+
+            configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\MeroX\rep3_DSSO-pl1_KSTY.zhrm";
             configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
+#endif
         }
     }
 }

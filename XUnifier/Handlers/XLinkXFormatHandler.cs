@@ -6,6 +6,7 @@ namespace XUnifier.Handlers
     public class XLinkXFormatHandler : FormatHandlerBase<ExcelReader>
     {
         public override string DisplayName => "XlinkX";
+        public override bool IsGrouped => false;
 
         protected override void Initialize()
         {

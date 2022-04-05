@@ -11,6 +11,7 @@ namespace XUnifier.Handlers
         private readonly Regex peptideRegex = new Regex(@"(?<seq>[^(-]+)\((?<pos>\d+)\)", RegexOptions.Compiled);
 
         public override string DisplayName => "pLink";
+        public override bool IsGrouped => false;
 
         protected override void Initialize()
         {
