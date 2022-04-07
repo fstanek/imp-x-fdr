@@ -509,10 +509,6 @@ def fdr_diagamm(list_crosslinks):
     workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0] + '_venn_input.xlsx')
     worksheet = workbook.add_worksheet()
 
-    # Start from the first cell. Rows and columns are zero indexed.
-    row = 0
-    col = 0
-
     worksheet.write(0,0, "Results")
     worksheet.write(2,0, "Total number of CSMs:")
     worksheet.write(3,0, "Total number of unique XLs:")
@@ -556,51 +552,71 @@ def fdr_diagamm(list_crosslinks):
     homo_XL = []
     false_XL = []
 
+    def contains_sequence(group, sequence):
+        return sequence in group or any(filter(lambda s: sequence in s, group))
 
+    def check_decoy(csm):
+        matches = list(filter(lambda g: contains_sequence(g, csm[0]) and contains_sequence(g, csm[1]), list_of_groups))
+        return len(matches) > 0
 
-    for i in range(len(list_of_scores)):
+    for score_index in range(len(list_of_scores)):
         all_crosslinks = 0
         correct_crosslinks = 0
         homeotypic = 0
-        for j in range(len(list_crosslinks)):
-            if list_crosslinks[list_dictionary_of_the_best_score[j]]>=list_of_scores[i]:
-                all_crosslinks = all_crosslinks +1
-                temp1.append(list([list_dictionary_of_the_best_score[j][0],list_dictionary_of_the_best_score[j][1],
-                                   list_dictionary_of_the_best_score[j][4],list_dictionary_of_the_best_score[j][5],
-                                   list_dictionary_of_the_best_score[j][8],list_dictionary_of_the_best_score[j][9], str("score_" + str(list_crosslinks[list_dictionary_of_the_best_score[j]]))]))
+
+        for index_csm in range(len(list_crosslinks)):
+            csm = list_dictionary_of_the_best_score[index_csm]
+            score = list_crosslinks[csm]
+            seq1 = csm[0]
+            seq2 = csm[1]
+
+            if score >= list_of_scores[score_index]:
+                all_crosslinks += 1
+                temp1.append(list([csm[0], csm[1], csm[4], csm[5], csm[8], csm[9], str("score_" + str(score))]))
                 found = False
-                k = 0
-                while(k<number_groups and found == False):
-                    l = 0
-                    while(l<peptides_per_group[k] and found == False):
-                        if list_dictionary_of_the_best_score[j][0] == list_of_groups[k][l] or list_dictionary_of_the_best_score[j][0] in list_of_groups[k][l] :
-                            m = 0
-                            while(m<peptides_per_group[k] and found== False):
-                                if (list_dictionary_of_the_best_score[j][1]== list_of_groups[k][m] or list_dictionary_of_the_best_score[j][1] in list_of_groups[k][m]):
-                                    found = True
-                                    correct_crosslinks = correct_crosslinks +1
-                                    temp2.append(list([list_dictionary_of_the_best_score[j][0],list_dictionary_of_the_best_score[j][1],
-                                                       list_dictionary_of_the_best_score[j][4],list_dictionary_of_the_best_score[j][5],
-                                                       list_dictionary_of_the_best_score[j][8],list_dictionary_of_the_best_score[j][9], str("score_" + str(list_crosslinks[list_dictionary_of_the_best_score[j]]))]))
-                                    if i==0:
-                                        list_true_XL_csv.append([list_dictionary_of_the_best_score[j][0],list_dictionary_of_the_best_score[j][1],
-                                                       list_dictionary_of_the_best_score[j][4],list_dictionary_of_the_best_score[j][5],
-                                                       list_dictionary_of_the_best_score[j][8],list_dictionary_of_the_best_score[j][9], list_crosslinks[list_dictionary_of_the_best_score[j]],"TRUE"])
 
-                                    if list_dictionary_of_the_best_score[j][0] == list_dictionary_of_the_best_score[j][1]:
-                                        homeotypic = homeotypic+1
-                                else:
-                                    m = m+1
+                if check_decoy(csm):
+                    correct_crosslinks += 1
+                    temp2.append(list([csm[0], csm[1], csm[4], csm[5], csm[8], csm[9], str("score_" + str(score))]))
+                    if score_index == 0:
+                        list_true_XL_csv.append([csm[0], csm[1], csm[4], csm[5], csm[8],csm[9], score,"TRUE"])
+                    if csm[0] == csm[1]:
+                        homeotypic += 1
+                elif score_index == 0:
+                    list_false_XL_csv.append([csm[0], csm[1], csm[4], csm[5], csm[8], csm[9], score,"FALSE"])
+
+                # group_index = 0
+                # while(group_index < number_groups and found == False):
+                #     count_group = peptides_per_group[group_index]
+                #     index_seq1 = 0                    
+                #     while(index_seq1 < count_group and found == False):
+                #         seq_group = list_of_groups[group_index]
+
+                #         if seq1 == seq_group[index_seq1] or seq1 in seq_group[index_seq1]:
+                #             index_seq2 = 0
+
+                #             while(index_seq2 < count_group and not found):
+                #                 if (seq2 == seq_group[index_seq2] or seq2 in seq_group[index_seq2]):
+                #                     found = True
+                #                     correct_crosslinks += 1
+                #                     temp2.append(list([csm[0], csm[1], csm[4], csm[5], csm[8], csm[9], str("score_" + str(score))]))
+                #                     if score_index == 0:
+                #                         list_true_XL_csv.append([csm[0], csm[1], csm[4], csm[5], csm[8],csm[9], score,"TRUE"])
+
+                #                     if seq1 == seq2:
+                #                         homeotypic += 1
+                #                 else:
+                #                     index_seq2 += 1
                             
-                        l = l+1
-                    k = k+1
-                if i==0 and found == False:
-                    list_false_XL_csv.append([list_dictionary_of_the_best_score[j][0],list_dictionary_of_the_best_score[j][1],
-                                                       list_dictionary_of_the_best_score[j][4],list_dictionary_of_the_best_score[j][5],
-                                                       list_dictionary_of_the_best_score[j][8],list_dictionary_of_the_best_score[j][9], list_crosslinks[list_dictionary_of_the_best_score[j]],"FALSE"])
+                #         index_seq1 = index_seq1+1
+                #     group_index += 1
 
-        if i == 0:
+                #if score_index == 0 and not found:
+                #    list_false_XL_csv.append([csm[0], csm[1], csm[4], csm[5], csm[8], csm[9], score,"FALSE"])
 
+        if score_index == 0:
+
+            # extract accession from protein name
             def working_on_name_of_the_protein(list_of_lists):
                 for i in range(len(list_of_lists)):
                     j = list_of_lists[i][2].find("sg|")+3
@@ -626,33 +642,21 @@ def fdr_diagamm(list_crosslinks):
                 temp2 = working_on_name_of_the_protein(temp2)
             except:
                 print("name of the protein not appropriate!")
-            for m in range(all_crosslinks):
-                temp1[m].sort()
-                temp1[m]=str(temp1[m])
-                worksheet.write(11+m,0,str(temp1[m]))
+            for index_seq2 in range(all_crosslinks):
+                temp1[index_seq2].sort()
+                temp1[index_seq2]=str(temp1[index_seq2])
+                worksheet.write(11+index_seq2,0,str(temp1[index_seq2]))
 
-            for m in range(len(temp2)):
-                temp2[m].sort()
-                temp2[m]=str(temp2[m])
-                worksheet.write(11+m,1,str(temp2[m]))
+            for index_seq2 in range(len(temp2)):
+                temp2[index_seq2].sort()
+                temp2[index_seq2]=str(temp2[index_seq2])
+                worksheet.write(11+index_seq2,1,str(temp2[index_seq2]))
 
             temp3=list(set(temp1)-set(temp2)) 
-            for m in range(len(temp3)):
-                worksheet.write(11+m,2,str(temp3[m]))
-                
+            for index_seq2 in range(len(temp3)):
+                worksheet.write(11+index_seq2,2,str(temp3[index_seq2]))          
 
-
-
-            list_of_the_correct_crosslinks = set(temp2)
-            list_of_the_false_crosslinks = set(set(temp1)-set(temp2))
-            list_of_all_crosslinks = set(temp1)
-
-
-            
-
-
-
-        to_be_ploted_x.append(list_of_scores[i])
+        to_be_ploted_x.append(list_of_scores[score_index])
         to_be_ploted_y.append((all_crosslinks-correct_crosslinks)/all_crosslinks)
         correct_no_homo_XL.append(correct_crosslinks-homeotypic)
         homo_XL.append(homeotypic)
@@ -690,46 +694,46 @@ def fdr_diagamm(list_crosslinks):
     plt.scatter(to_be_ploted_x[0],to_be_ploted_y[0])
     plt.annotate((to_be_ploted_x[0],float("{0:.3f}".format(to_be_ploted_y[0]))),(to_be_ploted_x[0],to_be_ploted_y[0]))
     if to_be_ploted_y[0]>0.05:
-        for i in range(len(to_be_ploted_x)):
-            if to_be_ploted_y[i]<=0.05 and alarm_005 == False:
-                plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
-                plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
+        for score_index in range(len(to_be_ploted_x)):
+            if to_be_ploted_y[score_index]<=0.05 and alarm_005 == False:
+                plt.scatter(to_be_ploted_x[score_index],to_be_ploted_y[score_index])
+                plt.annotate((to_be_ploted_x[score_index],float("{0:.3f}".format(to_be_ploted_y[score_index]))),(to_be_ploted_x[score_index],to_be_ploted_y[score_index]))
                 alarm_005 = True
-                worksheet.write(2,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
+                worksheet.write(2,4,correct_no_homo_XL[score_index]+homo_XL[score_index]+false_XL[score_index])
                 bar_graph.append("FDR 5%")
-                gold.append(correct_no_homo_XL[i])
-                silver.append(homo_XL[i])
-                bronze.append(false_XL[i])
-                score_bar.append(to_be_ploted_x[i])
-                if to_be_ploted_y[i]<=0.01:
+                gold.append(correct_no_homo_XL[score_index])
+                silver.append(homo_XL[score_index])
+                bronze.append(false_XL[score_index])
+                score_bar.append(to_be_ploted_x[score_index])
+                if to_be_ploted_y[score_index]<=0.01:
                     alarm_001 = True
-                    worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
+                    worksheet.write(3,4,correct_no_homo_XL[score_index]+homo_XL[score_index]+false_XL[score_index])
                     bar_graph[1] = "FDR 1%"
                     #gold.append(correct_no_homo_XL[i])
                     #silver.append(homo_XL[i])
                     #bronze.append(false_XL[i])
-            if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
-                plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
-                plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
+            if to_be_ploted_y[score_index]<=0.01 and alarm_001 == False:
+                plt.scatter(to_be_ploted_x[score_index],to_be_ploted_y[score_index])
+                plt.annotate((to_be_ploted_x[score_index],float("{0:.3f}".format(to_be_ploted_y[score_index]))),(to_be_ploted_x[score_index],to_be_ploted_y[score_index]))
                 alarm_001 = True
-                worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
+                worksheet.write(3,4,correct_no_homo_XL[score_index]+homo_XL[score_index]+false_XL[score_index])
                 bar_graph.append("FDR 1%")
-                gold.append(correct_no_homo_XL[i])
-                silver.append(homo_XL[i])
-                bronze.append(false_XL[i])
-                score_bar.append(to_be_ploted_x[i])
+                gold.append(correct_no_homo_XL[score_index])
+                silver.append(homo_XL[score_index])
+                bronze.append(false_XL[score_index])
+                score_bar.append(to_be_ploted_x[score_index])
     elif to_be_ploted_y[0]<=0.05 and to_be_ploted_y[0]>0.01:
-        for i in range(len(to_be_ploted_x)):
-            if to_be_ploted_y[i]<=0.01 and alarm_001 == False:
-                plt.scatter(to_be_ploted_x[i],to_be_ploted_y[i])
-                plt.annotate((to_be_ploted_x[i],float("{0:.3f}".format(to_be_ploted_y[i]))),(to_be_ploted_x[i],to_be_ploted_y[i]))
+        for score_index in range(len(to_be_ploted_x)):
+            if to_be_ploted_y[score_index]<=0.01 and alarm_001 == False:
+                plt.scatter(to_be_ploted_x[score_index],to_be_ploted_y[score_index])
+                plt.annotate((to_be_ploted_x[score_index],float("{0:.3f}".format(to_be_ploted_y[score_index]))),(to_be_ploted_x[score_index],to_be_ploted_y[score_index]))
                 alarm_001 = True
-                worksheet.write(3,4,correct_no_homo_XL[i]+homo_XL[i]+false_XL[i])
+                worksheet.write(3,4,correct_no_homo_XL[score_index]+homo_XL[score_index]+false_XL[score_index])
                 bar_graph.append("FDR 1%")
-                gold.append(correct_no_homo_XL[i])
-                silver.append(homo_XL[i])
-                bronze.append(false_XL[i])
-                score_bar.append(to_be_ploted_x[i])
+                gold.append(correct_no_homo_XL[score_index])
+                silver.append(homo_XL[score_index])
+                bronze.append(false_XL[score_index])
+                score_bar.append(to_be_ploted_x[score_index])
         
     workbook.close()
 
@@ -811,31 +815,31 @@ for i in range(good_count):
    # print(csms4[i])
 
 print(str(len(csms4)) +" out of "+ str(len(csms_clone3)) +" are correct")
-try:
-    # just for testing, will be erased later
-    for i in range(len(name_and_position_of_the_pair)):
-        j = name_and_position_of_the_pair[i][0].find("GN=")+3
-        k = name_and_position_of_the_pair[i][1].find("GN=")+3
+# try:
+#     # just for testing, will be erased later
+#     for i in range(len(name_and_position_of_the_pair)):
+#         j = name_and_position_of_the_pair[i][0].find("GN=")+3
+#         k = name_and_position_of_the_pair[i][1].find("GN=")+3
         
-        little_pivot1 = list(name_and_position_of_the_pair[i][0])
-        little_pivot2 = list(name_and_position_of_the_pair[i][1])
-        GN1_name = ""
-        GN2_name = "" 
-        while(little_pivot1[j]!=' '):
-            GN1_name = GN1_name + little_pivot1[j]
-            j=j+1
-        while(little_pivot2[k]!=' '):
-            GN2_name = GN2_name + little_pivot2[k]
-            k=k+1
-except:
-    pass
-    #
-    # print(GN1_name, name_and_position_of_the_pair[i][2],GN2_name,name_and_position_of_the_pair[i][3])
-    mini_list = []
-    mini_list.append(GN1_name + str(name_and_position_of_the_pair[i][2]))
-    mini_list.append(GN2_name + str(name_and_position_of_the_pair[i][3]))
-    mini_list.sort()
-    print(mini_list[0],mini_list[1])
+#         little_pivot1 = list(name_and_position_of_the_pair[i][0])
+#         little_pivot2 = list(name_and_position_of_the_pair[i][1])
+#         GN1_name = ""
+#         GN2_name = "" 
+#         while(little_pivot1[j]!=' '):
+#             GN1_name = GN1_name + little_pivot1[j]
+#             j=j+1
+#         while(little_pivot2[k]!=' '):
+#             GN2_name = GN2_name + little_pivot2[k]
+#             k=k+1
+# except:
+#     pass
+#     #
+#     # print(GN1_name, name_and_position_of_the_pair[i][2],GN2_name,name_and_position_of_the_pair[i][3])
+#     mini_list = []
+#     mini_list.append(GN1_name + str(name_and_position_of_the_pair[i][2]))
+#     mini_list.append(GN2_name + str(name_and_position_of_the_pair[i][3]))
+#     mini_list.sort()
+#     print(mini_list[0],mini_list[1])
 
 
 fdr_diagamm(dictionary_of_best_score)
