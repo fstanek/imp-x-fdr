@@ -37,18 +37,18 @@ def parsing_the_files(string_name):
 	list_all_XL = []
 	list_all_true_XL = []
 	list_all_false_XL = []
-	
-	# open the sheetspreadfile and the respective sheet 
+
+	# open the sheetspreadfile and the respective sheet
 	workbook = xlrd.open_workbook(string_name, on_demand = True)
-	worksheet = workbook.sheet_by_index(0)   
+	worksheet = workbook.sheet_by_index(0)
 	worksheet.cell_value(0,0)                           #initializing cell from the excel file mentioned through the cell position
 
-	
-	
-	
+
+
+
 	i=0
 
-	while worksheet.cell(11+i,1).value!=xlrd.empty_cell.value:
+	while (11+i) < worksheet.nrows and worksheet.cell(11+i,1).value!=xlrd.empty_cell.value:
 		crosslink_string = worksheet.cell(11+i,1).value
 		if(crosslink_string.find(", 'score_")!=-1):
 			crosslink_string = crosslink_string[0:crosslink_string.find(", 'score_")]+"]"
@@ -58,7 +58,7 @@ def parsing_the_files(string_name):
 	all_true_XL= i
 
 	i=0
-	while worksheet.cell(11+i,2).value!=xlrd.empty_cell.value:
+	while (11+i) < worksheet.nrows and worksheet.cell(11+i,2).value!=xlrd.empty_cell.value:
 		crosslink_string = worksheet.cell(11+i,2).value
 		if(crosslink_string.find(", 'score_")!=-1):
 			crosslink_string = crosslink_string[0:crosslink_string.find(", 'score_")]+"]"
@@ -96,20 +96,20 @@ def venn2_diagram(name1,name2):
 	worksheet1.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,1,pivot_list[i])
-	
+
 	worksheet1.write(1,2,"exclusively in "+title_list[1])
 	pivot_list = list(b1-(b1 & a1))
 	worksheet1.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,2,pivot_list[i])
-	
+
 	worksheet1.write(1,3,"overlap " + title_list[0] + ", " +  title_list[1])
 	pivot_list = list(b1 & a1)
 	worksheet1.write(2,3,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,3,pivot_list[i])
-	
-		
+
+
 	plt.savefig(path + "\\" + "venn2_allcrosslinks.svg")
 	plt.clf()
 	venn2(subsets = (len(a2)-len(a2 & b2), len(b2)-len(a2 & b2), len(a2 & b2)), set_labels = (title_list[0], title_list[1]), set_colors=(color_list[0], color_list[1]), alpha = 0.7);
@@ -123,13 +123,13 @@ def venn2_diagram(name1,name2):
 	worksheet2.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,1,pivot_list[i])
-	
+
 	worksheet2.write(1,2,"exclusively in "+title_list[1])
 	pivot_list = list(b2-(b2 & a2))
 	worksheet2.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,2,pivot_list[i])
-	
+
 	worksheet2.write(1,3,"overlap " + title_list[0] + ", " +  title_list[1])
 	pivot_list = list(b2 & a2)
 	worksheet2.write(2,3,len(pivot_list))
@@ -151,13 +151,13 @@ def venn2_diagram(name1,name2):
 	worksheet3.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,1,pivot_list[i])
-	
+
 	worksheet3.write(1,2,"exclusively in "+title_list[1])
 	pivot_list = list(b3-(b3 & a3))
 	worksheet3.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,2,pivot_list[i])
-	
+
 	worksheet3.write(1,3,"overlap " + title_list[0] + ", " +  title_list[1])
 	pivot_list = list(b3 & a3)
 	worksheet3.write(2,3,len(pivot_list))
@@ -184,7 +184,7 @@ def venn2_diagram(name1,name2):
 	print('RESULT: {'+ name_file_excel + ', '+'venn2_allcrosslinks.svg'+', ' +'venn2_truecrosslinks.svg' + ', ' + 'venn2_falsecrosslinks.svg}')
 
 
-	
+
 
 def venn3_diagram(name1,name2,name3):
 
@@ -202,7 +202,7 @@ def venn3_diagram(name1,name2,name3):
 					 len(c1 & b1)-len(a1 & b1 & c1),
 					 len(a1 & b1 & c1)),
 					 set_labels = (title_list[0], title_list[1], title_list[2]), set_colors=(color_list[0], color_list[1], color_list[2]), alpha = 0.5);
-	
+
 	workbook3 = xlsxwriter.Workbook(output_filename)
 	worksheet1 = workbook3.add_worksheet('all crosslinks')
 
@@ -211,37 +211,37 @@ def venn3_diagram(name1,name2,name3):
 	pivot_list=list(a1-(a1 & b1)-(c1 & a1))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,1,pivot_list[i])
-	
+
 	worksheet1.write(1,2,"exclusively in "+title_list[1])
 	pivot_list=list(b1-(a1 & b1)-(c1 & b1))
 	worksheet1.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,2,pivot_list[i])
-	
+
 	worksheet1.write(1,3,"overlap " + title_list[0]+ ", " + title_list[1])
 	pivot_list=list((a1 & b1)-(a1 & b1 & c1))
 	worksheet1.write(2,3,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,3,pivot_list[i])
-	
+
 	worksheet1.write(1,4,"exclusively in "+title_list[2])
 	pivot_list=list(c1-(c1 & a1)-(c1 & b1))
 	worksheet1.write(2,4,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,4,pivot_list[i])
-	
+
 	worksheet1.write(1,5,"overlap " + title_list[0]+ ", " + title_list[2])
 	pivot_list=list((c1 & a1)-(a1 & b1 & c1))
 	worksheet1.write(2,5,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,5,pivot_list[i])
-	
+
 	worksheet1.write(1,6,"overlap " + title_list[1]+ ", " + title_list[2])
 	pivot_list=list((c1 & b1)-(a1 & b1 & c1))
 	worksheet1.write(2,6,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,6,pivot_list[i])
-	
+
 	worksheet1.write(1,7,"overlap " + title_list[0]+ ", " + title_list[1] + "and" + title_list[2])
 	pivot_list=list(a1 & b1 & c1)
 	worksheet1.write(2,7,len(pivot_list))
@@ -268,37 +268,37 @@ def venn3_diagram(name1,name2,name3):
 	worksheet2.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,1,pivot_list[i])
-	
+
 	worksheet2.write(1,2,"exclusively in "+title_list[1])
 	pivot_list=list(b2-(a2 & b2)-(c2 & b2))
 	worksheet2.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,2,pivot_list[i])
-	
+
 	worksheet2.write(1,3,"overlap " + title_list[0]+ ", " + title_list[1])
 	pivot_list=list((a2 & b2)-(a2 & b2 & c2))
 	worksheet2.write(2,3,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,3,pivot_list[i])
-	
+
 	worksheet2.write(1,4,"exclusively in "+title_list[2])
 	pivot_list=list(c2-(c2 & a2)-(c2 & b2))
 	worksheet2.write(2,4,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,4,pivot_list[i])
-	
+
 	worksheet2.write(1,5,"overlap " + title_list[0]+ ", " + title_list[2])
 	pivot_list=list((c2 & a2)-(a2 & b2 & c2))
 	worksheet2.write(2,5,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,5,pivot_list[i])
-	
+
 	worksheet2.write(1,6,"overlap " + title_list[1]+ ", " + title_list[2])
 	pivot_list=list((c2 & b2)-(a2 & b2 & c2))
 	worksheet2.write(2,6,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,6,pivot_list[i])
-	
+
 	worksheet2.write(1,7,"overlap " + title_list[0]+ ", " + title_list[1] + "and" + title_list[2])
 	pivot_list=list(a2 & b2 & c2)
 	worksheet2.write(2,7,len(pivot_list))
@@ -323,37 +323,37 @@ def venn3_diagram(name1,name2,name3):
 	worksheet3.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,1,pivot_list[i])
-	
+
 	worksheet3.write(1,2,"exclusively in "+title_list[1])
 	pivot_list=list(b3-(a3 & b3)-(c3 & b3))
 	worksheet3.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,2,pivot_list[i])
-	
+
 	worksheet3.write(1,3,"overlap " + title_list[0]+ ", " + title_list[1])
 	pivot_list=list((a3 & b3)-(a3 & b3 & c3))
 	worksheet3.write(2,3,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,3,pivot_list[i])
-	
+
 	worksheet3.write(1,4,"exclusively in "+title_list[2])
 	pivot_list=list(c3-(c3 & a3)-(c3 & b3))
 	worksheet3.write(2,4,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,4,pivot_list[i])
-	
+
 	worksheet3.write(1,5,"overlap " + title_list[0]+ ", " + title_list[2])
 	pivot_list=list((c3 & a3)-(a3 & b3 & c3))
 	worksheet3.write(2,5,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,5,pivot_list[i])
-	
+
 	worksheet3.write(1,6,"overlap " + title_list[1]+ ", " + title_list[2])
 	pivot_list=list((c3 & b3)-(a3 & b3 & c3))
 	worksheet3.write(2,6,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,6,pivot_list[i])
-	
+
 	worksheet3.write(1,7,"overlap " + title_list[0]+ ", " + title_list[1] + "and" + title_list[2])
 	pivot_list=list(a3 & b3 & c3)
 	worksheet3.write(2,7,len(pivot_list))
@@ -425,13 +425,13 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet1.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,1,pivot_list[i])
-	
+
 	worksheet1.write(1,2,"present in at least two groups")
 	pivot_list=list((a1 & b1) | (a1 & c1) | (a1 & d1) | (b1 & c1) | (b1 & d1) | (c1 & d1))
 	worksheet1.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,2,pivot_list[i])
-	
+
 	worksheet1.write(1,3,"present in at least three groups")
 	pivot_list = list((a1 & b1 & c1) | (a1 & b1 & d1) | (a1 & c1 & d1) | (b1 & c1 & d1))
 	worksheet1.write(2,3,len(pivot_list))
@@ -443,10 +443,10 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet1.write(2,4,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet1.write(3+i,4,pivot_list[i])
-	
-	
-	
-	
+
+
+
+
 	worksheet2 = workbook4.add_worksheet('true crosslinks')
 
 	worksheet2.write(1,1,"present in at least one group")
@@ -454,13 +454,13 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet2.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,1,pivot_list[i])
-	
+
 	worksheet2.write(1,2,"present in at least two groups")
 	pivot_list=list((a2 & b2) | (a2 & c2) | (a2 & d2) | (b2 & c2) | (b2 & d2) | (c2 & d2))
 	worksheet2.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,2,pivot_list[i])
-	
+
 	worksheet2.write(1,3,"present in at least three groups")
 	pivot_list = list((a2 & b2 & c2) | (a2 & b2 & d2) | (a2 & c2 & d2) | (b2 & c2 & d2))
 	worksheet2.write(2,3,len(pivot_list))
@@ -472,8 +472,8 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet2.write(2,4,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet2.write(3+i,4,pivot_list[i])
-	
-	
+
+
 	worksheet3 = workbook4.add_worksheet('false crosslinks')
 
 	worksheet3.write(1,1,"present in at least one group")
@@ -481,13 +481,13 @@ def venn4_diagram(name1,name2,name3,name4):
 	worksheet3.write(2,1,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,1,pivot_list[i])
-	
+
 	worksheet3.write(1,2,"present in at least two groups")
 	pivot_list=list((a3 & b3) | (a3 & c3) | (a3 & d3) | (b3 & c3) | (b3 & d3) | (c3 & d3))
 	worksheet3.write(2,2,len(pivot_list))
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,2,pivot_list[i])
-	
+
 	worksheet3.write(1,3,"present in at least three groups")
 	pivot_list = list((a3 & b3 & c3) | (a3 & b3 & d3) | (a3 & c3 & d3) | (b3 & c3 & d3))
 	worksheet3.write(2,3,len(pivot_list))
@@ -500,8 +500,8 @@ def venn4_diagram(name1,name2,name3,name4):
 	for i in range(len(pivot_list)):
 		worksheet3.write(3+i,4,pivot_list[i])
 
-	
-	
+
+
 	worksheet1.set_column(0,1,70)
 	worksheet1.set_column(0,2,70)
 	worksheet1.set_column(0,3,70)
@@ -543,7 +543,7 @@ try:
 		venn3_diagram(address_of_the_first_file,address_of_the_second_file,address_of_the_third_file)
 
 	elif a == 4:
-		
+
 		address_of_the_first_file = sys.argv[2]
 		address_of_the_second_file = sys.argv[5]
 		address_of_the_third_file = sys.argv[8]
@@ -552,11 +552,3 @@ try:
 		venn4_diagram(address_of_the_first_file,address_of_the_second_file,address_of_the_third_file,address_of_the_fourth_file)
 except Exception as e:
 	print(e, file=sys.stderr)
-
-
-
-
-
-
-
-
