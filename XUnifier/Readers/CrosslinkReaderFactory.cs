@@ -16,8 +16,6 @@ namespace XUnifier
 
         public static IEnumerable<Crosslink> Group(IEnumerable<Crosslink> crosslinks)
         {
-            var comparer = new LinkerSiteCollectionEqualityComparer();
-
             return crosslinks.GroupBy(i => (i.Site1, i.Site2)).Select(g => new Crosslink
             {
                 Site1 = g.Key.Site1,

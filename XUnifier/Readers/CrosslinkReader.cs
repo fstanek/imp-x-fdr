@@ -92,7 +92,7 @@ namespace XUnifier.Readers
             if (!filters.Any())
                 return true;
 
-            return filters.Any(f => f());
+            return filters.All(f => f());
         }
 
         protected abstract void Initialize(Stream stream);

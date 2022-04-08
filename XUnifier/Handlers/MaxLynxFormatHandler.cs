@@ -18,9 +18,7 @@ namespace XUnifier.Handlers
             Register<string>("Pro_InterLink2", (c, value) => c.Site2.ProteinLink = int.Parse(value.Trim(';')));
 
             Register<string>("Sequence1", (c, value) => c.Site1.Sequence = value);
-            Register<string>("Sequence2", (c, value) => c.Site2.Sequence = value);
-
-            Filter<string>("Sequence2", value => value != "-");
+            Register<string>("Sequence2", (c, value) => c.Site2.Sequence = value, value => value != "-");
         }
     }
 }

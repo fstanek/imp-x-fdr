@@ -9,7 +9,7 @@
 		<StartupObject />
 		<!--<DisableWinExeOutputInference>true</DisableWinExeOutputInference>-->
 		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-		<AssemblyVersion>1.2.1.0</AssemblyVersion>
+		<AssemblyVersion>1.2.2.0</AssemblyVersion>
 		<AssemblyName>IMP_X_FDR</AssemblyName>
 		<RootNamespace>IMP_X_FDR</RootNamespace>
 	</PropertyGroup>

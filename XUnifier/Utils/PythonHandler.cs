@@ -70,8 +70,10 @@ namespace XUnifier.Utils
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
+            //using (var writer = new StreamWriter(@"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\search-engines\merox_input.csv"))
             foreach (var line in lines ?? Enumerable.Empty<string>())
                 process.StandardInput.WriteLine(line);
+                //writer.WriteLine(line);
 
             process.StandardInput.Close();
             process.WaitForExit();
