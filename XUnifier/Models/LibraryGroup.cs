@@ -1,5 +1,8 @@
-﻿namespace XUnifier.Models
+﻿using System.Diagnostics;
+
+namespace XUnifier.Models
 {
+    [DebuggerDisplay("{Name}")]
     public class LibraryGroup : IEquatable<LibraryGroup>
     {
         public string Name { get; set; }

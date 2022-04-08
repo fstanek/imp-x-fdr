@@ -841,8 +841,23 @@ print(str(len(csms4)) +" out of "+ str(len(csms_clone3)) +" are correct")
 #     mini_list.sort()
 #     print(mini_list[0],mini_list[1])
 
+import re
+def postprocess(text):
+    m = re.match('>[a-z]{2}\|([^ |]+)', text)
+    if m:
+        return m.group(1)
+    else:
+        return text
 
-fdr_diagamm(dictionary_of_best_score)
+with open('C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/search-engines/merox_output.csv', 'w') as file:
+    for (csm, score) in dictionary_of_best_score.items():
+        acc1 = postprocess(csm[4])
+        acc2 = postprocess(csm[5])
+        file.write('\t'.join(map(str, [csm[0], csm[1], score, acc1, acc2, csm[8], csm[9]])))
+        file.write('\n')
+
+#fdr_diagamm(dictionary_of_best_score)
+
 
 print(len(dictionary_of_best_score),good_count)
 

@@ -1,51 +1,66 @@
-﻿//using XUnifier;
-//using XUnifier.Utils;
+﻿//using XUnifier.Models;
 
-//var fileNameAnnika = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx";
-////fileNameAnnika = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7_shrinked.xlsx";
-//var fileNameXlinkX = @"C:\Users\stanek\Documents\test files\imp-x-fdr\XlinkX\20210203_QExHFX3_RSLC10_Matzinger_Mechtler_IMP_XLMS_DSSO_pure.xlsx";
+//var input = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\search-engines\merox_input.csv";
+//var output = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\search-engines\merox_output.csv";
 
-////var fileNamePlink = @"C:\Users\stanek\Documents\test files\test-data_Adrian\input files\DSSO_plink_rep1.csv";
-////fileNamePlink = @"C:\Users\stanek\Documents\test files\imp-x-fdr\pLink\DSBSO_rep2_plink.csv";
-////var meroxFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\MeroX\rep3_DSSO-pl1_KSTY.zhrm";
-////var fileNameXi = @"C:\Users\stanek\Documents\test files\imp-x-fdr\xiSearch\Cas_DSSO_E4data_20220120_Xi1.7.6.5_CSM_xiFDR2.1.5.5.csv";
+//var lines1 = File.ReadLines(input).Select(l => l.Trim()).ToHashSet();
+//var lines2 = File.ReadLines(output).Select(l => l.Trim()).ToHashSet();
 
-////var fileName = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\libraries\main_library.xlsx";
-////using var libraryReader = new LibraryReader(fileName);
-////var libraryGroups = libraryReader.Read().ToArray();
+//IEnumerable<Crosslink> Read(string fileName)
+//{
+//    var items = File.ReadLines(fileName).Select(line =>
+//    {
+//        var values = line.Split("\t");
 
-//var inputFileName = fileNameAnnika;
-//var libraryFileName = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\libraries\\main_library.xlsx";
-//var outputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7_scriptoutput.csv";
+//        return new Crosslink
+//        {
+//            Score = double.Parse(values[2]),
+//            Site1 = new LinkerSite
+//            {
+//                Accession = values[3],
+//                Sequence = values[0].Replace('B', 'C'),
+//                ProteinLink = int.Parse(values[5])
+//            },
+//            Site2 = new LinkerSite
+//            {
+//                Accession = values[4],
+//                Sequence = values[1].Replace('B', 'C'),
+//                ProteinLink = int.Parse(values[6])
+//            }
+//        };
+//    }).ToArray();
 
-//var items = CrosslinkReaderFactory.GetCrosslinks(inputFileName, out var displayName);
+//    foreach (var item in items)
+//    {
+//        var sites = new[] { item.Site1, item.Site2 }.OrderBy(s => s.Accession).ThenBy(s => s.Sequence).ThenBy(s => s.ProteinLink).ToArray();
+//        item.Site1 = sites.First();
+//        item.Site2 = sites.Last();
+//    }
 
-//var pythonFileName = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\read_stdin.py";
-//pythonFileName = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\search-engines\annika_master_score.py";
-////pythonFileName = @"C:\Users\stanek\source\repos\imp-x-fdr\IMP_X_FDR\Resources\search-engines\test.py";
+//    return items;
+//}
 
-////using var stream = new MemoryStream();
-////using var inputWriter = new StreamWriter(stream);
-////foreach(var item in items)
-////{
-////    inputWriter.WriteLine(string.Join('\t',
-////        item.LinkerSites[0].Sequence,
-////        item.LinkerSites[1].Sequence,
-////        item.Score.ToString(CultureInfo.InvariantCulture),
-////        item.LinkerSites[0].Accession,
-////        item.LinkerSites[1].Accession,
-////        item.LinkerSites[0].ProteinLink,
-////        item.LinkerSites[1].ProteinLink));
-////}
-////inputWriter.Flush();
-////stream.Seek(0, SeekOrigin.Begin);
+//var matc = lines1.Where(lines2.Contains).ToArray();
 
-//var pythonHandler = new PythonHandler();
-//pythonHandler.AddArgument(pythonFileName);
-//pythonHandler.AddArgument(libraryFileName);
-//pythonHandler.AddArgument(outputFileName);
-//pythonHandler.OutputReceived += Console.WriteLine;
-//pythonHandler.ErrorReceived += text => Console.WriteLine($"ERROR: {text}");
-//var exitCode = pythonHandler.Run(items.Select(CrosslinkHelper.GetLine));
+//var crosslinks1 = Read(input).OrderBy(c => c.Score).ToArray();
+//var crosslinks2 = Read(output).OrderBy(c => c.Score).ToArray();
+
+//var found = new List<Crosslink>();
+
+//foreach (var crosslink1 in crosslinks1)
+//{
+//    var matches = crosslinks2.Where(c => c.Score == crosslink1.Score)
+//        .Where(c => (c.Site1 == crosslink1.Site1 && c.Site2 == crosslink1.Site2) || (c.Site1 == crosslink1.Site2 && c.Site2 == crosslink1.Site1))
+//        .ToArray();
+
+//    if(matches.Length > 1)
+//    {
+
+//    }
+//    else if(matches.Length == 1)
+//    {
+//        found.Add(matches.First());
+//    }
+//}
 
 //Console.ReadLine();

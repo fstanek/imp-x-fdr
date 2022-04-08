@@ -28,7 +28,20 @@
             ]
         },
         {
-            "name": "plink",
+            "name": "general",
+            "type": "python",
+            "request": "launch",
+            "program": "search-engines/annika_master_score.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                //"C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_standard_pepength7_shrinked.xlsx",
+                "C:\\Users\\stanek\\source\\repos\\imp-x-fdr\\IMP_X_FDR\\Resources\\libraries\\main_library.xlsx",
+                "C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\Annika\\reanal_pl1_DSSO_Annika_standard_pepength7_FROMINPUT.csv"
+            ]
+        },
+        {
+            "name": "plink_old",
             "type": "python",
             "request": "launch",
             "program": "search-engines/plink_master_score.py",
@@ -38,23 +51,62 @@
                 //"C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\pLink\\21052021_DHSO_5adds_rep1_plink.csv",
                 "C:/Users/stanek/Documents/test files/imp-x-fdr/pLink/DSBSO_rep2_plink.csv",
                 "C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/libraries/main_library.xlsx",
-                "C:/Users/stanek/Documents/test files/imp-x-fdr/pLink/DSBSO_rep2_plink_SCRIPTOUT.csv"
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/pLink/DSBSO_rep2_plink_OUTPUTOLD.csv"
             ]
         },
         {
-            "name": "merox",
+            "name": "plink_new",
+            "type": "python",
+            "request": "launch",
+            "program": "search-engines/plink_master_score_new.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                //"C:\\Users\\stanek\\Documents\\test files\\imp-x-fdr\\pLink\\21052021_DHSO_5adds_rep1_plink.csv",
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/pLink/DSBSO_rep2_plink.csv",
+                "C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/libraries/main_library.xlsx",
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/pLink/DSBSO_rep2_plink_OUTPUTNEW.csv"
+            ]
+        },
+        {
+            "name": "merox-KSTY",
             "type": "python",
             "request": "launch",
             "program": "search-engines/merox_master_score.py",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                //"C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY.zhrm",
-                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/shrinked.zhrm",
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY.zhrm",
                 "C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/libraries/main_library.xlsx",
-                //"C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY_SCRIPTOUTPUT.csv"
-                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/shrinked_SCRIPTOUTPUT.zhrm"
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY_SCRIPTOUTPUT.csv"
             ]
-        }
+        },
+        {
+            "name": "merox-corrected",
+            "type": "python",
+            "request": "launch",
+            "program": "search-engines/merox_master_score.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/pl1_DSSO_rep1_corrected_settings.zhrm",
+                "C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/libraries/main_library.xlsx",
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/pl1_DSSO_rep1_corrected_settings_SCRIPTOUTPUT.csv"
+            ]
+        },
+        {
+            "name": "merox-new",
+            "type": "python",
+            "request": "launch",
+            "program": "search-engines/merox_new.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                //"C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY.zhrm",
+                "C:/Users/stanek/source/repos/imp-x-fdr/IMP_X_FDR/Resources/libraries/main_library.xlsx",
+                "C:/Users/stanek/Documents/test files/imp-x-fdr/MeroX/rep3_DSSO-pl1_KSTY_NEWOUTPUT.csv",
+                "DEBUG"
+            ]
+        },
     ]
 }

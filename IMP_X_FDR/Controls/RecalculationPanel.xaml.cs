@@ -1,14 +1,14 @@
 ﻿using IMP_X_FDR.Constants;
 using IMP_X_FDR.Utils;
 using Microsoft.Win32;
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using XUnifier;
+using XUnifier.Extensions;
 using XUnifier.Models;
 using XUnifier.Utils;
 
@@ -79,8 +79,24 @@ namespace IMP_X_FDR.Controls
                 //var inputFileName = default(string);
 
                 logPanel.AddMessage("Reading crosslinks from file...");
-                var items = CrosslinkReaderFactory.GetCrosslinks(configuration.InputFileName, out var isGrouped).ToArray();
-                logPanel.AddMessage($"{items.Length} crosslinks found.");
+                var rawItems = CrosslinkReaderFactory.GetCrosslinks(configuration.InputFileName, out var isGrouped).ToArray();
+                logPanel.AddMessage($"{rawItems.Length} crosslinks found.");
+
+            void PostprocessAccession(LinkerSite site)
+            {
+                var match = Regex.Match(site.Accession, @">[a-z]{2}\|(?<acc>[^ |]+)");
+                if (match.Success)
+                    site.Accession = match.GetString("acc");
+            }
+
+            foreach(var item in rawItems)
+            {
+                PostprocessAccession(item.Site1);
+                PostprocessAccession(item.Site2);
+            }
+
+            rawItems = CrosslinkReaderFactory.Order(rawItems).ToArray();
+            Crosslink[] items = rawItems.ToArray();
 
                 if (!isGrouped && configuration.GroupCSMs)
                 {
@@ -88,10 +104,9 @@ namespace IMP_X_FDR.Controls
                     logPanel.AddMessage($"Grouped to {items.Length} unique crosslinks.");
                 }
 
-                items = CrosslinkReaderFactory.Order(items).ToArray();
-
                 using var pythonHandler = PythonHelper.CreateHandler();
-                pythonHandler.AddArgument(configuration.ScriptName);
+            //pythonHandler.AddArgument(configuration.ScriptName);
+                pythonHandler.AddArgument(@"Resources/search-engines/merox_new.py");
                 pythonHandler.AddArgument(configuration.LibraryFileName);
                 pythonHandler.AddArgument(configuration.OutputFileName);
 
@@ -140,9 +155,8 @@ namespace IMP_X_FDR.Controls
         {
 #if DEBUG
             //configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\Annika\reanal_pl1_DSSO_Annika_standard_pepength7.xlsx";
-            //configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
-
             configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\MeroX\rep3_DSSO-pl1_KSTY.zhrm";
+            //configuration.InputFileName = @"C:\Users\stanek\Documents\test files\imp-x-fdr\MeroX\pl1_DSSO_rep1_corrected_settings.zhrm";
             configuration.OutputFileName = FileHelper.GetOutputFileName(configuration.InputFileName, ".csv");
 #endif
         }

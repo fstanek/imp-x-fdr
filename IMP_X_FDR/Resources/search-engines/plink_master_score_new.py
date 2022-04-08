@@ -57,7 +57,7 @@ print(len(peptides_per_group))
 # in list_of_groups there will be all peptides groups with all their members stored 
 list_of_groups = []
 # will be added to the list_of_groups and contains temporary the members of one group at the time
-list_of_peptides_per_group = []
+#list_of_peptides_per_group = []
 
 
 # all peptide sequences present in the excel document are read one by oneand the added to the list of groups
@@ -186,7 +186,7 @@ unique_crosslinks = []
 unique_crosslinks.append(csm_crosslinks[0])
 counter_xl = 0
 
-print(list_of_scores_plink)
+# print(list_of_scores_plink)
 for i in range(1,len(csm_crosslinks)):
     if (unique_crosslinks[counter_xl][0]==csm_crosslinks[i][0] and
         unique_crosslinks[counter_xl][1]==csm_crosslinks[i][1] and
@@ -215,7 +215,6 @@ temp2 = []
 def fdr_diagamm(list_crosslinks):
     temp1 = []
     temp2 = []
-
 
     workbook = xlsxwriter.Workbook(os.path.splitext(args.output_file_name)[0] + '_venn_input.xlsx')
     worksheet = workbook.add_worksheet()
@@ -267,83 +266,139 @@ def fdr_diagamm(list_crosslinks):
     list_false_XL_csv = []
 
     
-   
+    def get_score(crosslink):
+        return crosslink[2]
+    
+    def get_sequence1(crosslink):
+        return crosslink[0]
+    def get_sequence2(crosslink):
+        return crosslink[1]
 
+    def get_accession1(crosslink):
+        return crosslink[3]
+    def get_accession2(crosslink):
+        return crosslink[4]
 
-    for i in range(len(list_of_scores_plink)):
-        all_crosslinks = 0
-        correct_crosslinks = 0
-        homeotypic = 0
+    def get_position1(crosslink):
+        return crosslink[5]
+    def get_position2(crosslink):
+        return crosslink[6]
+
+    data = []
+    all_index = 0
+    correct_index = 0
+    false_index = 0
+
+    for crosslink in unique_crosslinks:
+        sequence1 = get_sequence1(crosslink)
+        sequence2 = get_sequence2(crosslink)
+        is_homeotypic = sequence1 == sequence2
+
+        group1 = list(filter(lambda group: sequence1 in group, list_of_groups))
+        group2 = list(filter(lambda group: sequence2 in group, list_of_groups))
+        is_correct = group1 != group2 or len(group1) > 1
+
+        data.append((get_score(crosslink), is_correct, is_homeotypic))
+
+        venn_value = str([
+            get_position1(crosslink),
+            get_position2(crosslink),
+            get_sequence1(crosslink),
+            get_sequence2(crosslink),
+            get_accession1(crosslink),
+            get_accession2(crosslink),
+            'score_{}'.format(get_score(crosslink))])
+
+        worksheet.write(11 + all_index, 0, venn_value)
+        all_index += 1
+
+        if is_correct:
+            column_index = correct_index
+            correct_index += 1
+        else:
+            column_index = false_index
+            false_index += 1
         
-        for j in range(len(unique_crosslinks)):
-            if unique_crosslinks[j][2]>=list_of_scores_plink[i]:
-                all_crosslinks = all_crosslinks +1
-                temp1.append(list([unique_crosslinks[j][0],unique_crosslinks[j][1],
-                                   unique_crosslinks[j][3],unique_crosslinks[j][4],
-                                   str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),str("score_" + str(unique_crosslinks[j][2]))]))
-                found = False
-                k = 0
-                while(k<number_groups and found == False):
-                    l = 0
-                    while(l<peptides_per_group[k] and found == False):
-                        if unique_crosslinks[j][0] == list_of_groups[k][l] or unique_crosslinks[j][0] in list_of_groups[k][l] :
-                            m = 0
-                            while(m<peptides_per_group[k] and found== False):
-                                if (unique_crosslinks[j][1]== list_of_groups[k][m] or unique_crosslinks[j][1] in list_of_groups[k][m]):
-                                    found = True
-                                    correct_crosslinks = correct_crosslinks +1
-                                    temp2.append(list([unique_crosslinks[j][0],unique_crosslinks[j][1],
-                                                       unique_crosslinks[j][3],unique_crosslinks[j][4],
-                                                       str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),str("score_" + str(unique_crosslinks[j][2]))]))
-                                    if i==0:
-                                        list_true_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
-                                                          unique_crosslinks[j][3],unique_crosslinks[j][4],
-                                                          str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"TRUE"])
-                                    if unique_crosslinks[j][0] == unique_crosslinks[j][1]:
-                                        homeotypic = homeotypic+1
-                                else:
-                                    m = m+1
+        worksheet.write(11 + column_index, 1, venn_value)
+
+    for score in list_of_scores_plink:
+        current_crosslinks = list(filter(lambda c: c[0] >= score, data))
+        total_count = len(current_crosslinks)
+        correct_count = len(list(filter(lambda c: c[1], current_crosslinks)))
+        homeotypic_count = len(list(filter(lambda c: c[2], current_crosslinks)))
+
+        to_be_ploted_x.append(score)
+        to_be_ploted_y.append((total_count - correct_count) / total_count)
+        correct_no_homo_XL.append(correct_count - homeotypic_count)
+        homo_XL.append(homeotypic_count)
+        false_XL.append(total_count - correct_count)
+ 
+    # for i in range(len(list_of_scores_plink)):
+    #     all_crosslinks = 0
+    #     correct_crosslinks = 0
+    #     homeotypic = 0
+    #     for j in range(len(unique_crosslinks)):
+    #         if unique_crosslinks[j][2]>=list_of_scores_plink[i]:
+    #             all_crosslinks = all_crosslinks +1
+    #             temp1.append(list([unique_crosslinks[j][0],unique_crosslinks[j][1],
+    #                                unique_crosslinks[j][3],unique_crosslinks[j][4],
+    #                                str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),str("score_" + str(unique_crosslinks[j][2]))]))
+    #             found = False
+    #             k = 0
+    #             while(k<number_groups and found == False):
+    #                 l = 0
+    #                 while(l<peptides_per_group[k] and found == False):
+    #                     if unique_crosslinks[j][0] == list_of_groups[k][l] or unique_crosslinks[j][0] in list_of_groups[k][l] :
+    #                         m = 0
+    #                         while(m<peptides_per_group[k] and found== False):
+    #                             if (unique_crosslinks[j][1]== list_of_groups[k][m] or unique_crosslinks[j][1] in list_of_groups[k][m]):
+    #                                 found = True
+    #                                 correct_crosslinks = correct_crosslinks +1
+    #                                 temp2.append(list([unique_crosslinks[j][0],unique_crosslinks[j][1],
+    #                                                    unique_crosslinks[j][3],unique_crosslinks[j][4],
+    #                                                    str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),str("score_" + str(unique_crosslinks[j][2]))]))
+    #                                 if i==0:
+    #                                     list_true_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
+    #                                                       unique_crosslinks[j][3],unique_crosslinks[j][4],
+    #                                                       str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"TRUE"])
+    #                                 if unique_crosslinks[j][0] == unique_crosslinks[j][1]:
+    #                                     homeotypic = homeotypic+1
+    #                             else:
+    #                                 m = m+1
                             
-                        l = l+1
-                    k = k+1
-                if i==0 and found == False:
-                    list_false_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
-                                                          unique_crosslinks[j][3],unique_crosslinks[j][4],
-                                                          str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"FALSE"])
-        if i == 0:
-            temp11 = []
-            temp22 = []
+    #                     l = l+1
+    #                 k = k+1
+    #             if i==0 and found == False:
+    #                 list_false_XL_csv.append([unique_crosslinks[j][0],unique_crosslinks[j][1],
+    #                                                       unique_crosslinks[j][3],unique_crosslinks[j][4],
+    #                                                       str(unique_crosslinks[j][5]),str(unique_crosslinks[j][6]),unique_crosslinks[j][2],"FALSE"])
+    #     if i == 0:
+    #         temp11 = []
+    #         temp22 = []
 
-            for m in range(len(temp1)):
-                temp1[m].sort()
-                temp1[m]=str(temp1[m])
-                temp11.append(str(temp1[m]))
-                worksheet.write(11+m,0,str(temp1[m]))
-
-
-            for m in range(len(temp2)):
-                temp2[m].sort()
-                temp2[m]=str(temp2[m])
-                temp22.append(str(temp2[m]))
-                worksheet.write(11+m,1,str(temp2[m]))
-
-            temp3=list(set(temp11)-set(temp22)) 
-            for m in range(len(temp3)):
-                worksheet.write(11+m,2,str(temp3[m]))
-            
-
-            list_of_the_correct_crosslinks = set(temp2)
-            list_of_the_false_crosslinks = set(set(temp11)-set(temp22))
-            list_of_all_crosslinks = set(temp1)
+    #         for m in range(len(temp1)):
+    #             temp1[m].sort()
+    #             temp1[m]=str(temp1[m])
+    #             temp11.append(str(temp1[m]))
+    #             worksheet.write(11+m,0,str(temp1[m]))
 
 
+    #         for m in range(len(temp2)):
+    #             temp2[m].sort()
+    #             temp2[m]=str(temp2[m])
+    #             temp22.append(str(temp2[m]))
+    #             worksheet.write(11+m,1,str(temp2[m]))
 
-        #print(all_crosslinks-correct_crosslinks, all_crosslinks)
-        to_be_ploted_x.append(list_of_scores_plink[i])
-        to_be_ploted_y.append((all_crosslinks-correct_crosslinks)/all_crosslinks)
-        correct_no_homo_XL.append(correct_crosslinks-homeotypic)
-        homo_XL.append(homeotypic)
-        false_XL.append(all_crosslinks-correct_crosslinks)
+    #         temp3=list(set(temp11)-set(temp22)) 
+    #         for m in range(len(temp3)):
+    #             worksheet.write(11+m,2,str(temp3[m]))
+
+    #     #print(all_crosslinks-correct_crosslinks, all_crosslinks)
+    #     to_be_ploted_x.append(list_of_scores_plink[i])
+    #     to_be_ploted_y.append((all_crosslinks-correct_crosslinks)/all_crosslinks)
+    #     correct_no_homo_XL.append(correct_crosslinks-homeotypic)
+    #     homo_XL.append(homeotypic)
+    #     false_XL.append(all_crosslinks-correct_crosslinks)
         
     
     plt.plot(to_be_ploted_x,to_be_ploted_y)

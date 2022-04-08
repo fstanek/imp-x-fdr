@@ -3,20 +3,19 @@ using XUnifier.Models;
 
 namespace XUnifier.Readers
 {
-    public class LibraryReader : IDisposable
+    public static class LibraryReader
     {
         private const string GroupPrefix = "Group";
 
-        private readonly ExcelPackage package;
-
-        public LibraryReader(string fileName)
+        static LibraryReader()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            package = new ExcelPackage(fileName);
         }
 
-        public IEnumerable<LibraryGroup> Read()
+        public static IEnumerable<LibraryGroup> Read(string fileName)
         {
+            using var package = new ExcelPackage(fileName);
+
             var sheet = package.Workbook.Worksheets.First();
             var values = Enumerable.Range(1, sheet.Dimension.Rows).Select(i => sheet.GetValue<string>(i, 1)).ToArray();
 
@@ -34,11 +33,6 @@ namespace XUnifier.Readers
                     Sequences = sequences.ToHashSet()
                 };
             }
-        }
-
-        public void Dispose()
-        {
-            package.Dispose();
         }
     }
 }

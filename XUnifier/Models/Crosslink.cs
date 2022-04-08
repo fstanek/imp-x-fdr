@@ -1,13 +1,16 @@
-﻿namespace XUnifier.Models
+﻿using System.Diagnostics;
+
+namespace XUnifier.Models
 {
-    public class Crosslink /*: IEquatable<Crosslink>*/
+    [DebuggerDisplay("{Site1.Sequence}:{Site2.Sequence}")]
+    public class Crosslink : IEquatable<Crosslink>
     {
-        //public LinkerSiteCollection LinkerSites { get; set; }
         public LinkerSite Site1 { get; set; }
         public LinkerSite Site2 { get; set; }
         public double Score { get; set; }
+        public bool IsDecoy { get; set; }
 
-        public bool Intra => Site1 == Site2;
+        public bool IsHomeotypic => Site1.Sequence == Site2.Sequence;
 
         public Crosslink()
         {
@@ -15,17 +18,16 @@
             Site2 = new LinkerSite();
         }
 
-        //public bool Equals(Crosslink? other)
-        //{
-        //    if (other is null)
-        //        return false;
+        public bool Equals(Crosslink? other)
+        {
+            return Site1 == other.Site1
+                && Site2 == other.Site2
+                && Score == other.Score;
+        }
 
-        //    return LinkerSites.ToHashSet().SetEquals(other.LinkerSites);
-        //}
-
-        //public override int GetHashCode()
-        //{
-        //    return LinkerSites.Sum(s => s.GetHashCode());
-        //}
+        public override int GetHashCode()
+        {
+            return Site1.GetHashCode() + Site2.GetHashCode() + Score.GetHashCode();
+        }
     }
 }

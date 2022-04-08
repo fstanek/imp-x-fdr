@@ -1,52 +1,42 @@
-﻿using XUnifier.Models;
-using XUnifier.Readers;
+﻿using XUnifier.Readers;
 
 namespace XUnifier.Handlers
 {
     public class MeroxFormatHandler : FormatHandlerBase<MeroxReader>
     {
-        public const int Score = 0;
-
-        public const int Accession1 = 7;
-        public const int Accession2 = 11;
-
-        public const int Sequence1 = 6;
-        public const int Sequence2 = 10;
-
-        public const int ProteinLink1 = 8;
-        public const int ProteinLink2 = 12;
-
-        public const int PeptideLink1 = 20;
-        public const int PeptideLink2 = 21;
-
         public override string DisplayName => "MeroX";
         public override bool IsGrouped => false;
 
         protected override void Initialize()
         {
-            Register<double>(Score, (csm, value) => csm.Score = value);
+            Register<double>(0, (csm, value) => csm.Score = value);
 
-            Register<string>(Accession1, (csm, value) => csm.Site1.Accession = value);
-            Register<string>(Accession2, (csm, value) => csm.Site2.Accession = value);
+            Register<string>(6, (csm, value) => csm.Site1.Sequence = GetSequence(value), FilterSequence);
+            Register<string>(10, (csm, value) => csm.Site2.Sequence = GetSequence(value), FilterSequence);
 
-            Register<string>(Sequence1, (csm, value) => csm.Site1.Sequence = GetSequence(value));
-            Register<string>(Sequence2, (csm, value) => csm.Site2.Sequence = GetSequence(value));
+            Register<string>(7, (csm, value) => csm.Site1.Accession = value);
+            Register<string>(11, (csm, value) => csm.Site2.Accession = value);
 
-            Register<int>(ProteinLink1, (csm, value) => csm.Site1.ProteinLink = value);
-            Register<int>(ProteinLink2, (csm, value) => csm.Site2.ProteinLink = value);
+            Register<string>(20, (csm, value) => csm.Site1.PeptideLink = GetPeptideLink(value));
+            Register<string>(21, (csm, value) => csm.Site2.PeptideLink = GetPeptideLink(value));
 
-            Register<string>(PeptideLink1, (csm, value) => csm.Site1.PeptideLink = GetPeptideLink(value));
-            Register<string>(PeptideLink2, (csm, value) => csm.Site2.PeptideLink = GetPeptideLink(value));
+            Register<int>(8, (csm, value) => csm.Site1.ProteinLink = csm.Site1.PeptideLink + value);
+            Register<int>(12, (csm, value) => csm.Site2.ProteinLink = csm.Site2.PeptideLink + value);
         }
 
         private string GetSequence(string value)
         {
-            return value.Trim("[]{}".ToArray()).ToUpper();
+            return value.Trim("[]{}".ToArray()).ToUpper().Replace('B', 'C');
+        }
+
+        private bool FilterSequence(string sequence)
+        {
+            return sequence != "0" && sequence != "1";
         }
 
         private int GetPeptideLink(string value)
         {
-            return int.Parse(value.Substring(1));
+            return int.Parse(value.Substring(1)) - 1;
         }
     }
 }

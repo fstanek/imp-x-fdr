@@ -26,15 +26,21 @@ namespace XUnifier.Handlers
 
         protected abstract void Initialize();
 
-        protected void Register<TValue>(int index, Action<Crosslink, TValue> handler)
+        protected void Register<TValue>(int index, Action<Crosslink, TValue> handler, Func<TValue, bool> filter = null)
         {
             actions.Add(reader => reader.Register(index, handler));
+
+            if (filter is not null)
+                Filter(index, filter);
         }
 
-        protected void Register<TValue>(string name, Action<Crosslink, TValue> handler)
+        protected void Register<TValue>(string name, Action<Crosslink, TValue> handler, Func<TValue, bool> filter = null)
         {
             names.Add(name);
             actions.Add(reader => reader.Register(name, handler));
+
+            if (filter is not null)
+                Filter(name, filter);
         }
 
         protected void Filter<TValue>(int index, Func<TValue, bool> handler)
